@@ -1,0 +1,15 @@
+\#*\#
+.\#*
+pom.xml
+*jar
+/lib/
+/classes/
+/out/
+/resources/public/cljs/
+.lein*
+.cljs_node_repl
+.nrepl-port
+figwheel_server.log
+cider-repl-history
+out*
+target
