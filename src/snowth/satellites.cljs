@@ -1,4 +1,7 @@
-(ns snowth.satellites)
+(ns snowth.satellites
+  (:require
+   [clojure.spec :as s]
+   [clojure.test.check.generators :as gen]))
 
 (defprotocol Satellite
   (-datetime->d [self datetime]
@@ -175,3 +178,63 @@
         (* 2 pi (- d (int d))))
       (-ds-per-orbit [_]
         (/ (* 2 pi) mean-anomaly-step)))))
+
+(def min-datetime #inst "1900")
+(def max-datetime #inst "2100")
+
+(s/def ::root-satellite-args
+  (s/cat :epoch ::valid-datetime
+         :ms-per-d pos-int?
+         :periapsis-start ::positive-angle
+         :periapsis-step ::step
+         :eccentricity-start ::eccentricity
+         :mean-anomaly-start ::positive-angle
+         :mean-anomaly-step (s/and ::positive-angle #(not= 0 %))
+         :ecliptic-obliquity-start ::positive-angle
+         :ecliptic-obliquity-step ::step
+         :rotation-offset ::positive-angle))
+
+(defn satellite-arg-gen
+  "Generates random satellites"
+  []
+  (gen/bind
+   (s/gen ::root-satellite-args)
+   (fn [args]
+     (let [{:keys [epoch ms-per-d periapsis-start periapsis-step
+                   eccentricity-start mean-anomaly-start mean-anomaly-step
+                   ecliptic-obliquity-start ecliptic-obliquity-step
+                   rotation-offset]}
+           (s/conform ::root-satellite-args args)
+           epoch-ms (.getTime epoch)
+           min-d (/ (- (.getTime min-datetime) epoch-ms) ms-per-d)
+           max-d (/ (- (.getTime max-datetime) epoch-ms) ms-per-d)
+           step-numerator (if (< eccentricity-start .5)
+                            eccentricity-start
+                            (- 1 eccentricity-start))
+           step-denominator (if (< max-d (.abs js/Math min-d))
+                              (- min-d 10)
+                              (+ max-d 10))
+           eccentricity-step (/ step-numerator step-denominator)]
+       (gen/return
+        (reify Satellite
+          (-datetime->d [_ datetime]
+            (/ (- (.getTime datetime) epoch-ms)
+               ms-per-d))
+          (-argument-of-periapsis [_ d]
+            (+ periapsis-start (* periapsis-step d)))
+          (-eccentricity [_ d]
+            (+ eccentricity-start (* eccentricity-step d)))
+          (-mean-anomaly [_ d]
+            (+ mean-anomaly-start (* mean-anomaly-step d)))
+          (-ecliptic-obliquity [_ d]
+            (+ ecliptic-obliquity-start (* ecliptic-obliquity-step d)))
+          (-rotation [_ d]
+            (+ rotation-offset (* 2 pi (- d (int d)))))
+          (-ds-per-orbit [_]
+            (/ (* 2 pi) mean-anomaly-step))))))))
+
+(s/def ::satellite (s/with-gen
+                     #(satisfies? Satellite %)
+                     #(gen/one-of [(satellite-arg-gen)
+                                   (s/gen #{mercury venus earth mars jupiter
+                                            saturn uranus neptune})])))

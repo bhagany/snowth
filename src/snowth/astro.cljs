@@ -25,14 +25,7 @@
   [n]
   (.sqrt js/Math n))
 
-(defn abs
-  [n]
-  (.abs js/Math n))
-
-(def min-datetime #inst "1900")
-(def max-datetime #inst "2100")
-
-(s/def ::valid-datetime (s/inst-in min-datetime max-datetime))
+(s/def ::valid-datetime (s/inst-in sat/min-datetime sat/max-datetime))
 (s/def ::ref number?)
 (s/def ::step (s/with-gen
                 (s/and number? #(<= -1 % 1))
@@ -48,71 +41,13 @@
 (s/def ::positive-half-angle (s/and ::not-nan #(<= 0 % pi)))
 (s/def ::eccentricity (s/and ::not-nan #(< 0 % 1)))
 
-(s/def ::root-satellite-args
-  (s/cat :epoch ::valid-datetime
-         :ms-per-d pos-int?
-         :periapsis-start ::positive-angle
-         :periapsis-step ::step
-         :eccentricity-start ::eccentricity
-         :mean-anomaly-start ::positive-angle
-         :mean-anomaly-step (s/and ::positive-angle #(not= 0 %))
-         :ecliptic-obliquity-start ::positive-angle
-         :ecliptic-obliquity-step ::step
-         :rotation-offset ::positive-angle))
-
-(defn satellite-arg-gen
-  "Generates random satellites"
-  []
-  (gen/bind
-   (s/gen ::root-satellite-args)
-   (fn [args]
-     (let [{:keys [epoch ms-per-d periapsis-start periapsis-step
-                   eccentricity-start mean-anomaly-start mean-anomaly-step
-                   ecliptic-obliquity-start ecliptic-obliquity-step
-                   rotation-offset]}
-           (s/conform ::root-satellite-args args)
-           epoch-ms (.getTime epoch)
-           min-d (/ (- (.getTime min-datetime) epoch-ms) ms-per-d)
-           max-d (/ (- (.getTime max-datetime) epoch-ms) ms-per-d)
-           step-numerator (if (< eccentricity-start .5)
-                            eccentricity-start
-                            (- 1 eccentricity-start))
-           step-denominator (if (< max-d (abs min-d))
-                              (- min-d 10)
-                              (+ max-d 10))
-           eccentricity-step (/ step-numerator step-denominator)]
-       (gen/return
-        (reify sat/Satellite
-          (-datetime->d [_ datetime]
-            (/ (- (.getTime datetime) epoch-ms)
-               ms-per-d))
-          (-argument-of-periapsis [_ d]
-            (+ periapsis-start (* periapsis-step d)))
-          (-eccentricity [_ d]
-            (+ eccentricity-start (* eccentricity-step d)))
-          (-mean-anomaly [_ d]
-            (+ mean-anomaly-start (* mean-anomaly-step d)))
-          (-ecliptic-obliquity [_ d]
-            (+ ecliptic-obliquity-start (* ecliptic-obliquity-step d)))
-          (-rotation [_ d]
-            (+ rotation-offset (* 2 pi (- d (int d)))))
-          (-ds-per-orbit [_]
-            (/ (* 2 pi) mean-anomaly-step))))))))
-
-(s/def ::satellite (s/with-gen
-                     #(satisfies? sat/Satellite %)
-                     #(gen/one-of [(satellite-arg-gen)
-                                   (s/gen #{sat/mercury sat/venus sat/earth
-                                            sat/mars sat/jupiter sat/saturn
-                                            sat/uranus sat/neptune})])))
-
 (defn datetime->d
   "Converts a conventional datetime into a d number, specific to the satellite"
   [satellite datetime]
   (sat/-datetime->d satellite datetime))
 
 (s/fdef datetime->d
-        :args (s/cat :satellite ::satellite
+        :args (s/cat :satellite ::sat/satellite
                      :datetime ::valid-datetime)
         :ret ::not-nan)
 
@@ -134,20 +69,20 @@
   "Generates a satellite/d pair, such that the d number is appropriate"
   []
   (gen/bind
-   (s/gen ::satellite)
+   (s/gen ::sat/satellite)
    (fn [sat]
      (gen/tuple
       (gen/return sat)
       (s/gen (s/and ::not-nan
                     #(>= % (datetime->d
                             sat
-                            (js/Date. (+ min-datetime 1))))
+                            (js/Date. (+ sat/min-datetime 1))))
                     #(<= % (datetime->d
                             sat
-                            (js/Date. (- max-datetime 1))))))))))
+                            (js/Date. (- sat/max-datetime 1))))))))))
 
 (s/def ::satellite-d-args  (s/with-gen
-                             (s/cat :satellite ::satellite
+                             (s/cat :satellite ::sat/satellite
                                     :d ::not-nan)
                              satellite-d-gen))
 
@@ -200,7 +135,7 @@
   (sat/-ds-per-orbit satellite))
 
 (s/fdef ds-per-orbit
-        :args (s/cat :satellite ::satellite)
+        :args (s/cat :satellite ::sat/satellite)
         :ret ::not-nan)
 
 (defn eccentric-anomaly
@@ -221,7 +156,7 @@
                             (- 1
                                (* eccentricity
                                   (cos ecc-anomaly*)))))]
-      (if (<= (abs (- ecc-anomaly* ecc-anomaly)) .00001)
+      (if (<= (.abs js/Math (- ecc-anomaly* ecc-anomaly)) .00001)
         ecc-anomaly
         (recur ecc-anomaly)))))
 
@@ -287,7 +222,7 @@
       (gen/return d)))))
 
 (s/def ::horiz-coords-args (s/with-gen
-                             (s/cat :satellite ::satellite
+                             (s/cat :satellite ::sat/satellite
                                     :latitude-radians ::half-angle
                                     :longitude-radians ::angle
                                     :d ::not-nan)
