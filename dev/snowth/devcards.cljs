@@ -1,7 +1,7 @@
 (ns snowth.devcards
   (:require
    [snowth.astro :as astro]
-   [snowth.core :refer [analemma]]
+   [snowth.core :as core :refer [analemma]]
    [snowth.projections :as proj]
    [snowth.render :as render :refer [dots racetrack]]
    [snowth.satellites :as sat]
@@ -56,13 +56,8 @@
   (sab/html
    (analemma sat/neptune 44.217 -88.344 now)))
 
-(doseq [[args coords] (s/exercise-fn 'astro/analemma-coords)]
-  (let [conformed (s/conform ::astro/analemma-args args)
-        center (proj/center-info coords)
-        svg-data (->> coords
-                      (map astro/alt-az)
-                      (map #(proj/orthographic center %))
-                      dots)]
+(doseq [[args svg-data] (s/exercise-fn 'analemma)]
+  (let [conformed (s/conform ::core/analemma-args args)]
     (defcard analemma
       (sab/html [:div
                  [:p (str (:latitude conformed) ", "
