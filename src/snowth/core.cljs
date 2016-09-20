@@ -2,8 +2,10 @@
   (:require
    [clojure.spec :as s]
    [snowth.astro :as astro]
+   [snowth.common :as c]
    [snowth.projections :as proj]
-   [snowth.render :as render]))
+   [snowth.render :as render]
+   [snowth.satellites :as sat]))
 
 (defn analemma
   "Returns data sufficient for rendering a satellite's analemma
@@ -37,9 +39,10 @@
                          (map #(projection-fn center %)))]
      (render-fn projection))))
 
-(s/fdef analemma :args (s/cat :satellite ::astro/satellite
+(s/def ::analemma-args (s/cat :satellite ::sat/satellite
                               :latitude ::astro/latitude
                               :longitude ::astro/longitude
-                              :datetime ::astro/valid-datetime
+                              :datetime ::c/valid-datetime
                               :render-fn (s/? ::render/render-fn)
                               :projection-fn (s/? ::proj/projection-fn)))
+(s/fdef analemma :args ::analemma-args)

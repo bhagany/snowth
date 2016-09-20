@@ -1,45 +1,12 @@
 (ns snowth.astro
   "Astronomical calculations needed for computing an analemma"
   (:require
+   [snowth.common :as c :refer [pi sin cos atan2 sqrt abs]]
    [snowth.satellites :as sat]
    [clojure.pprint :refer [pprint]]
    [clojure.spec :as s]
    [clojure.string :as str]
    [clojure.test.check.generators :as gen]))
-
-(def pi (.-PI js/Math))
-
-(defn sin
-  [n]
-  (.sin js/Math n))
-
-(defn cos
-  [n]
-  (.cos js/Math n))
-
-(defn atan2
-  [y x]
-  (.atan2 js/Math y x))
-
-(defn sqrt
-  [n]
-  (.sqrt js/Math n))
-
-(s/def ::valid-datetime (s/inst-in sat/min-datetime sat/max-datetime))
-(s/def ::ref number?)
-(s/def ::step (s/with-gen
-                (s/and number? #(<= -1 % 1))
-                (fn [] (gen/fmap #(/ % 100000000) (s/gen (s/int-in 0 1000))))))
-(s/def ::not-nan (s/and number? #(not (js/isNaN %))))
-(s/def ::eccentricity-step (s/with-gen
-                             (s/and ::not-nan #(<= -1 % 1))
-                             (fn [] (gen/fmap #(/ % 1000000000000000)
-                                              (s/gen (s/int-in 0 1000))))))
-(s/def ::angle (s/and ::not-nan #(<= (- pi) % pi)))
-(s/def ::positive-angle (s/and ::not-nan #(<= 0 % (* 2 pi))))
-(s/def ::half-angle (s/and ::not-nan #(<= (/ pi -2) % (/ pi 2))))
-(s/def ::positive-half-angle (s/and ::not-nan #(<= 0 % pi)))
-(s/def ::eccentricity (s/and ::not-nan #(< 0 % 1)))
 
 (defn datetime->d
   "Converts a conventional datetime into a d number, specific to the satellite"
@@ -48,8 +15,8 @@
 
 (s/fdef datetime->d
         :args (s/cat :satellite ::sat/satellite
-                     :datetime ::valid-datetime)
-        :ret ::not-nan)
+                     :datetime ::c/valid-datetime)
+        :ret ::c/not-nan)
 
 (defn constrain-angle
   "Constrains an angle to be between 0 and the provided constraint, through
@@ -73,22 +40,22 @@
    (fn [sat]
      (gen/tuple
       (gen/return sat)
-      (s/gen (s/and ::not-nan
+      (s/gen (s/and ::c/not-nan
                     #(>= % (datetime->d
                             sat
-                            (js/Date. (+ sat/min-datetime 1))))
+                            (js/Date. (+ c/min-datetime 1))))
                     #(<= % (datetime->d
                             sat
-                            (js/Date. (- sat/max-datetime 1))))))))))
+                            (js/Date. (- c/max-datetime 1))))))))))
 
 (s/def ::satellite-d-args  (s/with-gen
                              (s/cat :satellite ::sat/satellite
-                                    :d ::not-nan)
+                                    :d ::c/not-nan)
                              satellite-d-gen))
 
 (s/fdef argument-of-periapsis
         :args ::satellite-d-args
-        :ret ::positive-angle)
+        :ret ::c/positive-angle)
 
 (defn eccentricity
   "A measure of how round or elliptical an orbit is"
@@ -97,7 +64,7 @@
 
 (s/fdef eccentricity
         :args ::satellite-d-args
-        :ret ::eccentricity)
+        :ret ::c/eccentricity)
 
 (defn ecliptic-obliquity
   "The angle by which the satellite's equator is inclined to the plane
@@ -107,7 +74,7 @@
 
 (s/fdef ecliptic-obliquity
         :args ::satellite-d-args
-        :ret ::positive-half-angle)
+        :ret ::c/positive-half-angle)
 
 (defn mean-anomaly
   "The angle between where the satellite would be and its periapsis,
@@ -117,7 +84,7 @@
 
 (s/fdef mean-anomaly
         :args ::satellite-d-args
-        :ret ::positive-angle)
+        :ret ::c/positive-angle)
 
 (defn rotation
   "The angle by which the satellite has rotated since its last full rotation"
@@ -126,7 +93,7 @@
 
 (s/fdef rotation
         :args ::satellite-d-args
-        :ret ::positive-angle)
+        :ret ::c/positive-angle)
 
 (defn ds-per-orbit
   "The number of rotations per orbit, relative to the object the satellite
@@ -136,7 +103,7 @@
 
 (s/fdef ds-per-orbit
         :args (s/cat :satellite ::sat/satellite)
-        :ret ::not-nan)
+        :ret ::c/not-nan)
 
 (defn eccentric-anomaly
   "It's hard to explain with words, but this is an orbital parameter related
@@ -156,7 +123,7 @@
                             (- 1
                                (* eccentricity
                                   (cos ecc-anomaly*)))))]
-      (if (<= (.abs js/Math (- ecc-anomaly* ecc-anomaly)) .00001)
+      (if (<= (abs (- ecc-anomaly* ecc-anomaly)) .00001)
         ecc-anomaly
         (recur ecc-anomaly)))))
 
@@ -217,17 +184,17 @@
    (fn [[sat d]]
      (gen/tuple
       (gen/return sat)
-      (s/gen ::half-angle)
-      (s/gen ::angle)
+      (s/gen ::c/half-angle)
+      (s/gen ::c/angle)
       (gen/return d)))))
 
 (s/def ::horiz-coords-args (s/with-gen
                              (s/cat :satellite ::sat/satellite
-                                    :latitude-radians ::half-angle
-                                    :longitude-radians ::angle
-                                    :d ::not-nan)
+                                    :latitude-radians ::c/half-angle
+                                    :longitude-radians ::c/angle
+                                    :d ::c/not-nan)
                              horiz-coords-args-gen))
-(s/def ::normal-coord (s/and ::not-nan #(<= -1 % 1)))
+(s/def ::normal-coord (s/and ::c/not-nan #(<= -1 % 1)))
 (s/def ::horiz-coords (s/cat :x ::normal-coord
                              :y ::normal-coord
                              :z ::normal-coord))
@@ -243,8 +210,8 @@
         azimuth (+ pi (atan2 horiz-y horiz-x))]
     [altitude azimuth]))
 
-(s/def ::alt-az (s/cat :altitude ::half-angle
-                       :azimuth ::positive-angle))
+(s/def ::alt-az (s/cat :altitude ::c/half-angle
+                       :azimuth ::c/positive-angle))
 (s/fdef alt-az
         :args (s/cat :coords (s/spec ::horiz-coords))
         :ret ::alt-az)
@@ -265,12 +232,12 @@
          (take num-samples)
          (map #(horiz-coords satellite latitude-rad longitude-rad %)))))
 
-(s/def ::latitude (s/and ::not-nan #(<= -90 % 90)))
-(s/def ::longitude (s/and ::not-nan #(<= -180 % 180)))
-(s/def ::analemma-args (s/cat :satellite ::sat/satellite
-                              :latitude ::latitude
-                              :longitude ::longitude
-                              :datetime ::valid-datetime))
+(s/def ::latitude (s/and ::c/not-nan #(<= -90 % 90)))
+(s/def ::longitude (s/and ::c/not-nan #(<= -180 % 180)))
+
 (s/fdef analemma-coords
-        :args ::analemma-args
+        :args (s/cat :satellite ::sat/satellite
+                     :latitude ::latitude
+                     :longitude ::longitude
+                     :datetime ::c/valid-datetime)
         :ret (s/coll-of ::horiz-coords))

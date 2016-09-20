@@ -1,7 +1,8 @@
 (ns snowth.projections
   (:require
    [clojure.spec :as s]
-   [snowth.astro :as astro]))
+   [snowth.astro :as astro]
+   [snowth.common :as c :refer [sin cos]]))
 
 (defn center-info
   [coords]
@@ -16,19 +17,19 @@
                                 (+ min-y (/ height 2))
                                 (+ min-z (/ depth 2))])]
     {::astro/alt-az [alt az]
-     ::sin-center-alt (astro/sin alt)
-     ::cos-center-alt (astro/cos alt)}))
+     ::sin-center-alt (sin alt)
+     ::cos-center-alt (cos alt)}))
 
 (defn orthographic
   [center [alt az]]
   (let [{:keys [::astro/alt-az ::sin-center-alt ::cos-center-alt]} center
         [_ center-az] alt-az
         delta-az (- az center-az)
-        x (* (astro/cos alt) (astro/sin delta-az))
-        y (- (* (astro/sin alt)
+        x (* (cos alt) (sin delta-az))
+        y (- (* (sin alt)
                 cos-center-alt)
-             (* (astro/cos alt)
-                (astro/cos delta-az)
+             (* (cos alt)
+                (cos delta-az)
                 sin-center-alt))]
     [x y]))
 
@@ -37,9 +38,9 @@
   (let [{:keys [::astro/alt-az ::sin-center-alt ::cos-center-alt]} center
         [_ center-az] alt-az
         [x* y*] (orthographic center pt-alt-az)
-        z* (+ (* (astro/sin alt)
+        z* (+ (* (sin alt)
                  sin-center-alt)
-              (* (astro/cos alt)
+              (* (cos alt)
                  (- az center-az)
                  cos-center-alt))
         scale-factor (/ 2 (+ z* 1))
@@ -47,13 +48,13 @@
         y (* y* scale-factor)]
     [x y]))
 
-(s/def ::trig-range (s/and ::astro/not-nan #(<= -1 % 1)))
+(s/def ::trig-range (s/and ::c/not-nan #(<= -1 % 1)))
 (s/def ::sin-center-alt ::trig-range)
 (s/def ::cos-center-alt ::trig-range)
 (s/def ::center-info (s/keys :req [::astro/alt-az
                                    ::sin-center-alt
                                    ::cos-center-alt]))
-(s/def ::point (s/tuple ::astro/not-nan ::astro/not-nan))
+(s/def ::point (s/tuple ::c/not-nan ::c/not-nan))
 
 (s/def ::projection-fn
   (s/with-gen

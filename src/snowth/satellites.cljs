@@ -1,7 +1,8 @@
 (ns snowth.satellites
   (:require
    [clojure.spec :as s]
-   [clojure.test.check.generators :as gen]))
+   [clojure.test.check.generators :as gen]
+   [snowth.common :as c]))
 
 (defprotocol Satellite
   (-datetime->d [self datetime]
@@ -179,20 +180,20 @@
       (-ds-per-orbit [_]
         (/ (* 2 pi) mean-anomaly-step)))))
 
-(def min-datetime #inst "1900")
-(def max-datetime #inst "2100")
-
+(s/def ::step (s/with-gen
+                (s/and number? #(<= -1 % 1))
+                (fn [] (gen/fmap #(/ % 100000000) (s/gen (s/int-in 0 1000))))))
 (s/def ::root-satellite-args
-  (s/cat :epoch ::valid-datetime
+  (s/cat :epoch ::c/valid-datetime
          :ms-per-d pos-int?
-         :periapsis-start ::positive-angle
+         :periapsis-start ::c/positive-angle
          :periapsis-step ::step
-         :eccentricity-start ::eccentricity
-         :mean-anomaly-start ::positive-angle
-         :mean-anomaly-step (s/and ::positive-angle #(not= 0 %))
-         :ecliptic-obliquity-start ::positive-angle
+         :eccentricity-start ::c/eccentricity
+         :mean-anomaly-start ::c/positive-angle
+         :mean-anomaly-step (s/and ::c/positive-angle #(not= 0 %))
+         :ecliptic-obliquity-start ::c/positive-angle
          :ecliptic-obliquity-step ::step
-         :rotation-offset ::positive-angle))
+         :rotation-offset ::c/positive-angle))
 
 (defn satellite-arg-gen
   "Generates random satellites"
@@ -206,8 +207,8 @@
                    rotation-offset]}
            (s/conform ::root-satellite-args args)
            epoch-ms (.getTime epoch)
-           min-d (/ (- (.getTime min-datetime) epoch-ms) ms-per-d)
-           max-d (/ (- (.getTime max-datetime) epoch-ms) ms-per-d)
+           min-d (/ (- (.getTime c/min-datetime) epoch-ms) ms-per-d)
+           max-d (/ (- (.getTime c/max-datetime) epoch-ms) ms-per-d)
            step-numerator (if (< eccentricity-start .5)
                             eccentricity-start
                             (- 1 eccentricity-start))
