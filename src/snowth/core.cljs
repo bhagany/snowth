@@ -36,3 +36,10 @@
                          (map astro/alt-az)
                          (map #(projection-fn center %)))]
      (render-fn projection))))
+
+(s/fdef analemma :args (s/cat :satellite ::astro/satellite
+                              :latitude ::astro/latitude
+                              :longitude ::astro/longitude
+                              :datetime ::astro/valid-datetime
+                              :render-fn (s/? ::render/render-fn)
+                              :projection-fn (s/? ::proj/projection-fn)))
