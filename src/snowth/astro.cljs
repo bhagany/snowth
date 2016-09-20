@@ -308,10 +308,11 @@
         azimuth (+ pi (atan2 horiz-y horiz-x))]
     [altitude azimuth]))
 
+(s/def ::alt-az (s/cat :altitude ::half-angle
+                       :azimuth ::positive-angle))
 (s/fdef alt-az
         :args (s/cat :coords (s/spec ::horiz-coords))
-        :ret (s/cat :altitude ::half-angle
-                    :azimuth ::positive-angle))
+        :ret ::alt-az)
 
 (defn analemma-coords
   "Generates a satellite's analemma in 3-dimensional horizontal coordinates"
@@ -329,9 +330,11 @@
          (take num-samples)
          (map #(horiz-coords satellite latitude-rad longitude-rad %)))))
 
-(s/def ::analemma-args (s/cat :satellite ::satellite
-                              :latitude (s/and ::not-nan #(<= -90 % 90))
-                              :longitude (s/and ::not-nan #(<= -180 % 180))
+(s/def ::latitude (s/and ::not-nan #(<= -90 % 90)))
+(s/def ::longitude (s/and ::not-nan #(<= -180 % 180)))
+(s/def ::analemma-args (s/cat :satellite ::sat/satellite
+                              :latitude ::latitude
+                              :longitude ::longitude
                               :datetime ::valid-datetime))
 (s/fdef analemma-coords
         :args ::analemma-args

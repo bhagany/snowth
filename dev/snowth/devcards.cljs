@@ -22,7 +22,7 @@
 
 (defcard dots-stereo
   (sab/html
-   (analemma sat/earth 44.217 -88.344 now dots proj/stereographic)))
+   (analemma sat/earth 44.217 -88.344 now proj/stereographic)))
 
 (defcard racetrack-stereo
   (sab/html
@@ -62,7 +62,7 @@
         svg-data (->> coords
                       (map astro/alt-az)
                       (map #(proj/orthographic center %))
-                      (render/-render dots))]
+                      dots)]
     (defcard analemma
       (sab/html [:div
                  [:p (str (:latitude conformed) ", "
