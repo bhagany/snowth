@@ -7,7 +7,7 @@
    [snowth.satellites :as sat]
    [clojure.spec :as s]
    [clojure.spec.test :as test]
-   [devcards.core :refer-macros [defcard]]
+   [devcards.core :as dc :refer-macros [defcard]]
    [sablono.core :as sab :include-macros true]))
 
 ;; Hawthorne Fish House, Portland OR
@@ -27,7 +27,6 @@
       (.getCurrentPosition
        gl
        #(let [coords (.-coords %)]
-          (.log js/console coords)
           (swap! state (change-location coords))))
       (swap! a (change-location #js {:latitude default-lat
                                      :longitude default-long})))
@@ -94,3 +93,5 @@
                           (:longitude conformed) " at "
                           (:datetime conformed))]
                  svg-data]))))
+
+(dc/start-devcard-ui!)
