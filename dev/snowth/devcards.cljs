@@ -12,8 +12,6 @@
   (:require-macros
    [devcards.core :refer [defcard]]))
 
-(dc/start-devcard-ui!)
-
 ;; Hawthorne Fish House, Portland OR
 (def default-lat 45.5121466)
 (def default-long -122.6196392)
@@ -97,3 +95,5 @@
                           (:longitude conformed) " at "
                           (:datetime conformed))]
                  svg-data]))))
+
+(dc/start-devcard-ui!)
