@@ -32,9 +32,9 @@
                                      :parallel-build true
                                      :cache-analysis true}}
                :github-pages {:source-paths ["src" "dev"]
+                              :devcards      true
                               :compiler {:output-to     "docs/gh-pages.js"
+                                         :asset-path    "docs/out"
                                          :main          snowth.devcards
                                          :devcards      true
-                                         :optimizations :advanced
-                                         :parallel-build true
-                                         :cache-analysis true}}}})
+                                         :optimizations :whitespace}}}})
