@@ -23,8 +23,6 @@
   (-ds-per-orbit [self]
     "Number of rotations per revolution"))
 
-(def pi (.-PI js/Math))
-
 (def j2000 (js/Date. (js/Date.UTC 2000 0 1)))
 (def j2000-ms (.getTime j2000))
 
@@ -43,9 +41,9 @@
       (-mean-anomaly [_ d]
         (+ 2.943606 (* mean-anomaly-step d)))
       (-rotation [_ d]
-        (* 2 pi (- d (int d))))
+        (* 2 c/pi (- d (int d))))
       (-ds-per-orbit [_]
-        (/ (* 2 pi) mean-anomaly-step)))))
+        (/ (* 2 c/pi) mean-anomaly-step)))))
 
 (def venus
   (let [mean-anomaly-step 3.2646157411]
@@ -62,9 +60,9 @@
       (-mean-anomaly [_ d]
         (+ 0.837848 (* mean-anomaly-step d)))
       (-rotation [_ d]
-        (* 2 pi (- d (int d))))
+        (* 2 c/pi (- d (int d))))
       (-ds-per-orbit [_]
-        (/ (* 2 pi) mean-anomaly-step)))))
+        (/ (* 2 c/pi) mean-anomaly-step)))))
 
 (def earth
   (let [mean-anomaly-step 0.0172019696]
@@ -81,9 +79,9 @@
       (-mean-anomaly [_ d]
         (+ 6.214192 (* mean-anomaly-step d)))
       (-rotation [_ d]
-        (* 2 pi (- d (int d))))
+        (* 2 c/pi (- d (int d))))
       (-ds-per-orbit [_]
-        (/ (* 2 pi) mean-anomaly-step)))))
+        (/ (* 2 c/pi) mean-anomaly-step)))))
 
 (def mars
   (let [mean-anomaly-step 0.00939732]
@@ -100,9 +98,9 @@
       (-mean-anomaly [_ d]
         (+ 0.338369 (* mean-anomaly-step d)))
       (-rotation [_ d]
-        (+ 6.277137 (* 2 pi (- d (int d)))))
+        (+ 6.277137 (* 2 c/pi (- d (int d)))))
       (-ds-per-orbit [_]
-        (/ (* 2 pi) mean-anomaly-step)))))
+        (/ (* 2 c/pi) mean-anomaly-step)))))
 
 (def jupiter
   (let [mean-anomaly-step .0005997361319]
@@ -119,9 +117,9 @@
       (-mean-anomaly [_ d]
         (+ 0.3472 (* mean-anomaly-step d)))
       (-rotation [_ d]
-        (* 2 pi (- d (int d))))
+        (* 2 c/pi (- d (int d))))
       (-ds-per-orbit [_]
-        (/ (* 2 pi) mean-anomaly-step)))))
+        (/ (* 2 c/pi) mean-anomaly-step)))))
 
 (def saturn
   (let [mean-anomaly-step 0.000259168083]
@@ -138,9 +136,9 @@
       (-mean-anomaly [_ d]
         (+ 5.532118 (* mean-anomaly-step d)))
       (-rotation [_ d]
-        (* 2 pi (- d (int d))))
+        (* 2 c/pi (- d (int d))))
       (-ds-per-orbit [_]
-        (/ (* 2 pi) mean-anomaly-step)))))
+        (/ (* 2 c/pi) mean-anomaly-step)))))
 
 (def uranus
   (let [mean-anomaly-step 0.00014700973]
@@ -157,9 +155,9 @@
       (-mean-anomaly [_ d]
         (+ 2.488674 (* mean-anomaly-step d)))
       (-rotation [_ d]
-        (* 2 pi (- d (int d))))
+        (* 2 c/pi (- d (int d))))
       (-ds-per-orbit [_]
-        (/ (* 2 pi) mean-anomaly-step)))))
+        (/ (* 2 c/pi) mean-anomaly-step)))))
 
 (def neptune
   (let [mean-anomaly-step 7.023628e-5]
@@ -176,9 +174,9 @@
       (-mean-anomaly [_ d]
         (+ 4.542169 (* mean-anomaly-step d)))
       (-rotation [_ d]
-        (* 2 pi (- d (int d))))
+        (* 2 c/pi (- d (int d))))
       (-ds-per-orbit [_]
-        (/ (* 2 pi) mean-anomaly-step)))))
+        (/ (* 2 c/pi) mean-anomaly-step)))))
 
 (s/def ::step (s/with-gen
                 (s/and number? #(<= -1 % 1))
@@ -230,9 +228,9 @@
           (-ecliptic-obliquity [_ d]
             (+ ecliptic-obliquity-start (* ecliptic-obliquity-step d)))
           (-rotation [_ d]
-            (+ rotation-offset (* 2 pi (- d (int d)))))
+            (+ rotation-offset (* 2 c/pi (- d (int d)))))
           (-ds-per-orbit [_]
-            (/ (* 2 pi) mean-anomaly-step))))))))
+            (/ (* 2 c/pi) mean-anomaly-step))))))))
 
 (s/def ::satellite (s/with-gen
                      #(satisfies? Satellite %)
