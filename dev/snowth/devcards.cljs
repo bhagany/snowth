@@ -10,51 +10,81 @@
    [devcards.core :refer-macros [defcard]]
    [sablono.core :as sab :include-macros true]))
 
-(def now (js/Date.))
+;; Hawthorne Fish House, Portland OR
+(def default-lat 45.5121466)
+(def default-long -122.6196392)
+
+(defn change-location
+  [coords]
+  #(-> %
+       (assoc-in [:lat] (or (.-latitude coords) default-lat))
+       (assoc-in [:long] (or (.-longitude coords) default-long))))
+
+(defonce state
+  (let [a (atom {:now (js/Date.)})
+        gl (.-geolocation js/navigator)]
+    (if gl
+      (.getCurrentPosition
+       gl
+       #(let [coords (.-coords %)]
+          (.log js/console coords)
+          (swap! state (change-location coords))))
+      (swap! a (change-location #js {:latitude default-lat
+                                     :longitude default-long})))
+    (js/setInterval #(swap! state assoc-in [:now] (js/Date.)) 60000)
+    a))
+
+(defn analemma-card
+  [sat & opt-args]
+  (fn [state-atom _]
+    (let [{:keys [lat long now]} @state-atom]
+      (if (and lat long)
+        (sab/html
+         (apply analemma sat lat long now opt-args))))))
 
 (defcard dots-ortho
-  (sab/html
-   (analemma sat/earth 44.217 -88.344 now)))
+  (analemma-card sat/earth)
+  state)
 
 (defcard racetrack-ortho
-  (sab/html
-   (analemma sat/earth 44.217 -88.344 now racetrack)))
+  (analemma-card sat/earth racetrack)
+  state)
 
 (defcard dots-stereo
-  (sab/html
-   (analemma sat/earth 44.217 -88.344 now proj/stereographic)))
+  (analemma-card sat/earth proj/stereographic)
+  state)
 
 (defcard racetrack-stereo
-  (sab/html
-   (analemma sat/earth 44.217 -88.344 now racetrack proj/stereographic)))
+  (analemma-card sat/earth racetrack proj/stereographic)
+  state)
 
 (defcard mars
-  (sab/html
-   (analemma sat/mars 44.217 -88.344 now)))
+  (analemma-card sat/mars)
+  state)
 
 (defcard mercury
-  (sab/html
-   (analemma sat/mercury 44.217 -88.344 now)))
+  (analemma-card sat/mercury)
+  state)
 
 (defcard venus
-  (sab/html
-   (analemma sat/venus 44.217 -88.344 now)))
+  (analemma-card sat/venus)
+  state)
 
 (defcard jupiter
-  (sab/html
-   (analemma sat/jupiter 44.217 -88.344 now)))
+  (analemma-card sat/jupiter)
+  state)
 
 (defcard saturn
-  (sab/html
-   (analemma sat/saturn 44.217 -88.344 now)))
+  (analemma-card sat/saturn)
+  state)
 
 (defcard uranus
-  (sab/html
-   (analemma sat/uranus 44.217 -88.344 now)))
+  (analemma-card sat/uranus)
+  state)
 
 (defcard neptune
-  (sab/html
-   (analemma sat/neptune 44.217 -88.344 now)))
+  (analemma-card sat/neptune)
+  state)
 
 (doseq [[args svg-data] (s/exercise-fn 'analemma)]
   (let [conformed (s/conform ::core/analemma-args args)]
