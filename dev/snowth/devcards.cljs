@@ -1,16 +1,16 @@
 (ns snowth.devcards
   (:require
+   [clojure.core.async :refer [chan <! >! put! close! timeout]]
+   [clojure.spec :as s]
+   [clojure.spec.test :as test]
+   [devcards.core :as dc :refer-macros [defcard]]
+   [sablono.core :as sab :include-macros true]
    [snowth.astro :as astro]
    [snowth.core :as core :refer [analemma]]
    [snowth.projections :as proj]
    [snowth.render :as render :refer [dots racetrack]]
-   [snowth.satellites :as sat]
-   [clojure.spec :as s]
-   [clojure.spec.test :as test]
-   [devcards.core :as dc]
-   [sablono.core :as sab :include-macros true])
-  (:require-macros
-   [devcards.core :refer [defcard]]))
+   [snowth.satellites :as sat])
+  (:require-macros [cljs.core.async.macros :refer [go]]))
 
 ;; Hawthorne Fish House, Portland OR
 (def default-lat 45.5121466)
@@ -24,14 +24,18 @@
 
 (defonce state
   (let [a (atom {:now (js/Date.)})
-        gl (.-geolocation js/navigator)]
-    (if gl
-      (.getCurrentPosition
-       gl
-       #(let [coords (.-coords %)]
-          (swap! state (change-location coords))))
-      (swap! a (change-location #js {:latitude default-lat
-                                     :longitude default-long})))
+        location-ch (chan)
+        defaults #js {:latitude default-lat :longitude default-long}]
+    (if-let [gl (.-geolocation js/navigator)]
+      (.getCurrentPosition gl #(put! location-ch (.-coords %)))
+      (put! location-ch defaults))
+    (go
+      (let [[val ch] (alts! [location-ch (timeout 10000)])
+            coords (if (= ch location-ch)
+                     val
+                     defaults)]
+        (swap! a (change-location coords)))
+      (close! location-ch))
     (js/setInterval #(swap! state assoc-in [:now] (js/Date.)) 60000)
     a))
 
