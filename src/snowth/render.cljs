@@ -22,40 +22,59 @@
      (+ width (* x-margin 2)) (+ height (* y-margin 2))]))
 
 (defn dots
-  [projection]
+  [projection horizon]
   ;; svg coordinates are upside down
   (let [projection (map (fn [[x y]] [x (- y)]) projection)
-        viewbox-data (view-box projection)]
-    [:svg {:width 908 :height 908 :viewBox (str/join "," viewbox-data)}
-     (into `([:circle {:cx ~(ffirst projection)
-                       :cy ~(second (first projection))
-                       :r .004363323129985824
-                       :style {"fill" "red"}}])
-           (map #(-> [:circle {:cx (first %)
-                               :cy (second %)
-                               :r .004363323129985824
-                               :style {"fill" "#a6e3f7"}}])
-                (drop 1 projection)))]))
+        [x _ width _ :as viewbox-data] (view-box projection)
+        horizon (->> horizon
+                     (map (fn [[x y]] [x (- y)]))
+                     (drop-while #(< (first %) x))
+                     (take-while #(<= (first %) (+ x width))))
+        horizon-d (->> (rest horizon)
+                       (map #(str "L" (str/join " " %)))
+                       (into [(str "M" (str/join " " (first horizon)))]))]
+    [:svg {:width "100%" :height 900 :viewBox (str/join "," viewbox-data)}
+     (map #(-> [:circle {:cx (first %)
+                         :cy (second %)
+                         :r .004363323129985824
+                         :style {"fill" "#a6e3f7"}}])
+          (rest projection))
+     [:circle {:cx (ffirst projection)
+               :cy (second (first projection))
+               :r .004363323129985824
+               :style {"fill" "red"}}]
+     [:path {:d (str/join " " horizon-d) :stroke "black"
+             :stroke-width .0005 :fill "none"}]]))
 
 (defn racetrack
-  [projection]
+  [projection horizon]
   ;; svg coordinates are upside down
   (let [projection (map (fn [[x y]] [x (- y)]) projection)
-        viewbox-data (view-box projection)
+        [x _ width _ :as viewbox-data] (view-box projection)
+        horizon (->> horizon
+                     (map (fn [[x y]] [x (- y)]))
+                     (drop-while #(< (first %) x))
+                     (take-while #(<= (first %) (+ x width))))
         first-date (first projection)
-        path-d (conj (->> projection
+        path-d (conj (->> (rest projection)
                           (map #(str "L" (str/join " " %)))
                           (into [(str "M" (str/join " " first-date))]))
-                     " Z")]
-    [:svg {:width 908 :height 908 :viewBox (str/join "," viewbox-data)}
+                     " Z")
+        horizon-d (->> (rest horizon)
+                       (map #(str "L" (str/join " " %)))
+                       (into [(str "M" (str/join " " (first horizon)))]))]
+    [:svg {:width "100%" :height 900 :viewBox (str/join "," viewbox-data)}
      [:path {:d (str/join " " path-d) :stroke "#a6e3f7" :stroke-linejoin "round"
              :stroke-width .01 #_0.008726646259971648 :fill "none"}]
      [:circle {:cx (first first-date)
                :cy (second first-date)
                :r .004363323129985824
-               :style {"fill" "red"}}]]))
+               :style {"fill" "red"}}]
+     [:path {:d (str/join " " horizon-d) :stroke "black"
+             :stroke-width .0005 :fill "none"}]]))
 
 (s/def ::render-fn
   (s/with-gen
-    (s/fspec :args (s/cat :projection (s/coll-of ::proj/point)))
+    (s/fspec :args (s/cat :projection (s/coll-of ::proj/point)
+                          :horizon (s/coll-of ::proj/point)))
     #(s/gen #{dots racetrack})))

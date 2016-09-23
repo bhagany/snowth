@@ -2,7 +2,7 @@
   (:require
    [clojure.spec :as s]
    [snowth.astro :as astro]
-   [snowth.common :as c :refer [sin cos]]))
+   [snowth.common :as c :refer [sin cos sqrt]]))
 
 (defn center-info
   [coords]
@@ -43,7 +43,9 @@
               (* (cos alt)
                  (- az center-az)
                  cos-center-alt))
-        scale-factor (/ 2 (+ z* 1))
+        scale-factor (if (< z* -.9)
+                       (* 20 (sqrt (/ .19 (- 1.00001 (* z* z*)))))
+                       (/ 2 (+ z* 1)))
         x (* x* scale-factor)
         y (* y* scale-factor)]
     [x y]))

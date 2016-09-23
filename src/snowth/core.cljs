@@ -2,7 +2,7 @@
   (:require
    [clojure.spec :as s]
    [snowth.astro :as astro]
-   [snowth.common :as c]
+   [snowth.common :as c :refer [pi]]
    [snowth.projections :as proj]
    [snowth.render :as render]
    [snowth.satellites :as sat]))
@@ -34,10 +34,13 @@
   ([satellite latitude longitude datetime render-fn projection-fn]
    (let [coords (astro/analemma-coords satellite latitude longitude datetime)
          center (proj/center-info coords)
-         projection (->> coords
-                         (map astro/alt-az)
-                         (map #(projection-fn center %)))]
-     (render-fn projection))))
+         alt-az (map astro/alt-az coords)
+         projection (map #(projection-fn center %) alt-az)
+         center-az (second (::astro/alt-az center))
+         horizon (map #(projection-fn center [0 %])
+                      (range (- center-az (/ pi 2))
+                             (+ center-az (/ pi 2)) (/ pi 180)))]
+     (render-fn projection horizon))))
 
 (s/def ::analemma-args (s/cat :satellite ::sat/satellite
                               :latitude ::astro/latitude
