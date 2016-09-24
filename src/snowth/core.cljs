@@ -33,10 +33,10 @@
 
   ([satellite latitude longitude datetime render-fn projection-fn]
    (let [coords (astro/analemma-coords satellite latitude longitude datetime)
-         center (proj/center-info coords)
-         alt-az (map astro/alt-az coords)
-         projection (map #(projection-fn center %) alt-az)
-         center-az (second (::astro/alt-az center))
+         {[_ center-az] ::astro/alt-az :as center} (proj/center-info coords)
+         projection (->> coords
+                         (map astro/alt-az)
+                         (map #(projection-fn center %)))
          horizon (map #(projection-fn center [0 %])
                       (range (- center-az (/ pi 2))
                              (+ center-az (/ pi 2)) (/ pi 180)))]
