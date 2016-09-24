@@ -43,7 +43,9 @@
               (* (cos alt)
                  (cos (- az center-az))
                  cos-center-alt))
-        scale-factor (/ 2 (+ z* 1))
+        scale-factor (if (= z* -1)
+                       js/Number.MAX_VALUE
+                       (/ 2 (+ z* 1)))
         x (* x* scale-factor)
         y (* y* scale-factor)]
     [x y]))
