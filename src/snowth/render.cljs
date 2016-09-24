@@ -32,19 +32,21 @@
                      (take-while #(<= (first %) (+ x width))))
         horizon-d (->> (rest horizon)
                        (map #(str "L" (str/join " " %)))
-                       (into [(str "M" (str/join " " (first horizon)))]))]
+                       (into [(str "M" (str/join " " (first horizon)))]))
+        dot-and-horizon (list [:circle {:cx (ffirst projection)
+                                        :cy (second (first projection))
+                                        :r .004363323129985824
+                                        :style {"fill" "red"}}]
+                              [:path {:d (str/join " " horizon-d)
+                                      :stroke "black" :stroke-width .0005
+                                      :fill "none"}])]
     [:svg {:width "100%" :height 900 :viewBox (str/join "," viewbox-data)}
-     (map #(-> [:circle {:cx (first %)
-                         :cy (second %)
-                         :r .004363323129985824
-                         :style {"fill" "#a6e3f7"}}])
-          (rest projection))
-     [:circle {:cx (ffirst projection)
-               :cy (second (first projection))
-               :r .004363323129985824
-               :style {"fill" "red"}}]
-     [:path {:d (str/join " " horizon-d) :stroke "black"
-             :stroke-width .0005 :fill "none"}]]))
+     (->> (rest projection)
+          (map #(-> [:circle {:cx (first %)
+                              :cy (second %)
+                              :r .004363323129985824
+                              :style {"fill" "#a6e3f7"}}]))
+          (into dot-and-horizon))]))
 
 (defn racetrack
   [projection horizon]
@@ -64,14 +66,14 @@
                        (map #(str "L" (str/join " " %)))
                        (into [(str "M" (str/join " " (first horizon)))]))]
     [:svg {:width "100%" :height 900 :viewBox (str/join "," viewbox-data)}
-     [:path {:d (str/join " " path-d) :stroke "#a6e3f7" :stroke-linejoin "round"
-             :stroke-width .01 #_0.008726646259971648 :fill "none"}]
-     [:circle {:cx (first first-date)
-               :cy (second first-date)
-               :r .004363323129985824
-               :style {"fill" "red"}}]
-     [:path {:d (str/join " " horizon-d) :stroke "black"
-             :stroke-width .0005 :fill "none"}]]))
+     [[:path {:d (str/join " " path-d) :stroke "#a6e3f7" :stroke-linejoin "round"
+              :stroke-width .01 #_0.008726646259971648 :fill "none"}]
+      [:circle {:cx (first first-date)
+                :cy (second first-date)
+                :r .004363323129985824
+                :style {"fill" "red"}}]
+      [:path {:d (str/join " " horizon-d) :stroke "black"
+              :stroke-width .0005 :fill "none"}]]]))
 
 (s/def ::render-fn
   (s/with-gen
