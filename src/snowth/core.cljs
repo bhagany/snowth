@@ -39,7 +39,8 @@
                          (map #(projection-fn center %)))
          horizon (map #(projection-fn center [0 %])
                       (range (- center-az (/ pi 2))
-                             (+ center-az (/ pi 2)) (/ pi 180)))]
+                             (+ center-az (/ pi 2))
+                             (/ pi 180)))]
      (render-fn projection horizon))))
 
 (s/def ::analemma-args (s/cat :satellite ::sat/satellite
