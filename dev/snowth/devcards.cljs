@@ -36,7 +36,7 @@
                      defaults)]
         (swap! a (change-location coords)))
       (close! location-ch))
-    (js/setInterval #(swap! state assoc-in [:now] (js/Date.)) 60000)
+    (js/setInterval #(swap! state assoc-in [:now] (js/Date.)) 30000)
     a))
 
 (defn analemma-card
