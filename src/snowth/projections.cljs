@@ -41,11 +41,9 @@
         z* (+ (* (sin alt)
                  sin-center-alt)
               (* (cos alt)
-                 (- az center-az)
+                 (cos (- az center-az))
                  cos-center-alt))
-        scale-factor (if (< z* -0.9)
-                       (* 20 (sqrt (/ .19 (- 1.00001 (* z* z*)))))
-                       (/ 2 (+ z* 1)))
+        scale-factor (/ 2 (+ z* 1))
         x (* x* scale-factor)
         y (* y* scale-factor)]
     [x y]))
