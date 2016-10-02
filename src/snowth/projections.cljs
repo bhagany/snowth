@@ -43,11 +43,13 @@
               (* (cos alt)
                  (cos (- az center-az))
                  cos-center-alt))
-        scale-factor (if (= z* -1)
-                       js/Number.MAX_VALUE
-                       (/ 2 (+ z* 1)))
-        x (* x* scale-factor)
-        y (* y* scale-factor)]
+        scale-factor (/ 2 (+ z* 1))
+        x (if (= scale-factor js/Infinity)
+            js/Number.MAX_VALUE
+            (* x* scale-factor))
+        y (if (= scale-factor js/Infinity)
+            js/Number.MAX_VALUE
+            (* y* scale-factor))]
     [x y]))
 
 (s/def ::trig-range (s/and ::c/not-nan #(<= -1 % 1)))
@@ -56,7 +58,8 @@
 (s/def ::center-info (s/keys :req [::astro/alt-az
                                    ::sin-center-alt
                                    ::cos-center-alt]))
-(s/def ::point (s/tuple ::c/not-nan ::c/not-nan))
+(s/def ::point (s/tuple (s/and ::c/not-nan #(not= % js/Infinity))
+                        (s/and ::c/not-nan #(not= % js/Infinity))))
 
 (s/def ::projection-fn
   (s/with-gen
