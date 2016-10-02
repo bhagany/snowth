@@ -22,7 +22,7 @@
      (+ width (* x-margin 2)) (+ height (* y-margin 2))]))
 
 (defn dots
-  [projection horizon]
+  [projection horizon _ _ _]
   ;; svg coordinates are upside down
   (let [projection (map (fn [[x y]] [x (- y)]) projection)
         [x _ width _ :as viewbox-data] (view-box projection)
@@ -49,7 +49,7 @@
           (into dot-and-horizon))]))
 
 (defn racetrack
-  [projection horizon]
+  [projection horizon _ _ _]
   ;; svg coordinates are upside down
   (let [projection (map (fn [[x y]] [x (- y)]) projection)
         [x _ width _ :as viewbox-data] (view-box projection)
@@ -78,5 +78,8 @@
 (s/def ::render-fn
   (s/with-gen
     (s/fspec :args (s/cat :projection (s/coll-of ::proj/point)
-                          :horizon (s/coll-of ::proj/point)))
+                          :horizon (s/coll-of ::proj/point)
+                          :center-horizon (s/spec ::proj/point)
+                          :zenith (s/spec ::proj/point)
+                          :nadir (s/spec ::proj/point)))
     #(s/gen #{dots racetrack})))

@@ -40,8 +40,11 @@
          horizon (map #(projection-fn center [0 %])
                       (range (- center-az (/ pi 2))
                              (+ center-az (/ pi 2))
-                             (/ pi 180)))]
-     (render-fn projection horizon))))
+                             (/ pi 180)))
+         center-horizon (projection-fn center [0 center-az])
+         zenith (projection-fn center [(/ pi 2) 0])
+         nadir (projection-fn center [(/ pi -2) 0])]
+     (render-fn projection horizon center-horizon zenith nadir))))
 
 (s/def ::analemma-args (s/cat :satellite ::sat/satellite
                               :latitude ::astro/latitude
