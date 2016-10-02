@@ -11,11 +11,15 @@
   :source-paths ["src"]
   :clean-targets ^{:protect false} ["out" "target" "resources/public/cljs"]
 
-  :profiles {:dev {:dependencies [[cljsjs/react-dom "0.14.3-1"]
+  :profiles {:dev {:dependencies [[cljsjs/chroma "1.1.1-0"]
+                                  [cljsjs/d3 "4.2.2-0"]
                                   [com.cemerick/piggieback "0.2.1"]
                                   [devcards "0.2.1-7" :exclusions [org.clojure/clojure
                                                                    org.clojure/clojurescript
-                                                                   cljsjs/react-dom]]
+                                                                   cljsjs/react
+                                                                   cljsjs/react-dom
+                                                                   cljsjs/react-dom-server
+                                                                   cljsjs/react-server]]
                                   [doo "0.1.7"]
                                   [figwheel-sidecar "0.5.7" :exclusions [org.clojure/core.async
                                                                          org.clojure/tools.analyzer.jvm
@@ -25,6 +29,7 @@
                                                                          org.clojure/data.priority-map]]
                                   [org.clojure/core.async "0.2.391"]
                                   [org.clojure/test.check "0.9.0"]
+                                  [reagent "0.6.0"]
                                   [sablono "0.7.4"]]
                    :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}}}
 
@@ -34,7 +39,7 @@
                 :figwheel {:devcards true}
                 :compiler {:output-to     "resources/public/cljs/snowth.js"
                            :output-dir    "resources/public/cljs/out"
-                           :main snowth.devcards
+                           :main snowth.devcards.core
                            :asset-path    "cljs/out"
                            :source-map    true
                            :optimizations :none
@@ -47,6 +52,6 @@
                            :output-dir "docs/out"
                            :source-map "docs/gh-pages.js.map"
                            :asset-path "out"
-                           :main snowth.devcards
+                           :main snowth.devcards.core
                            :devcards true
                            :optimizations :advanced}}]})
