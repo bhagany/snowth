@@ -5,8 +5,9 @@ A library for generating analemmas, given orbital parameters
 
 If you've learned about earth's seasons and axial tilt, you are probably familiar with the idea that the
 sun's path through the sky moves from day to day.  If you were to take a picture of the sun every day at the
-same time, the result would be a pattern that is specific to your latitude and the time of day you chose.
-That pattern is called an analemma, and this is a library for calculating and displaying them.
+same time, from the same place, and from the same angle, the result of composing those images would be a pattern
+that is specific to your latitude and the time of day you chose. That pattern is called an analemma, and this
+is a library for calculating and displaying them.
 
 ## Installation
 To install from Clojars, add this to your dependencies:
