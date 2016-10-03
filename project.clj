@@ -1,6 +1,6 @@
 (defproject snowth "0.1.0"
-  :description ""
-  :url ""
+  :description "Analemma calculations"
+  :url "https://github.com/bhagany/snowth"
   :dependencies [[org.clojure/clojure "1.9.0-alpha12"]
                  [org.clojure/clojurescript "1.9.229"]]
 
