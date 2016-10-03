@@ -119,13 +119,13 @@
       (when (and lat long)
         (let [start-ms (.getTime now)
               end-ms (inc (+ start-ms (* 1000 60 60 24)))
-              data*
+              data
               (->>
                (range start-ms end-ms 900000)
                (map #(analemma
                       sat/earth lat long (js/Date. %) d3-chroma-dots
                       proj/orthographic))
-               (map (fn [[proj horz-y zenith-y nadir-y]]
+               (map (fn [[projection horz-y zenith-y nadir-y]]
                       (let [above-horz (- horz-y
                                           (* 0.05 (- nadir-y zenith-y)))
                             below-horz (+ horz-y
@@ -138,10 +138,8 @@
                                            #js [zenith-y above-horz horz-y
                                                 below-horz nadir-y])
                                           (.mode "lab"))]
-                        [proj sun-scale]))))
-              viewbox (render/view-box (mapcat first data*))
-              data (map (fn [[projection sun-scale]]
-                          [(clj->js projection) sun-scale]) data*)]
+                        [projection sun-scale]))))
+              viewbox (render/view-box (mapcat first data))]
           (swap! local-state #(-> %
                                   (assoc :data data)
                                   (assoc :viewbox viewbox))))))))
@@ -170,24 +168,42 @@
                              (-> js/d3
                                  (.select "svg#d3-day")
                                  (.selectAll "circle.later")
-                                 (.data projection)
+                                 (.data (clj->js (rest projection)))
                                  (.transition transition)
                                  (.attr "cx" #(aget % 0))
                                  (.attr "cy" #(aget % 1))
                                  (.style "fill" #(.hex (sun-scale (aget % 1)))))
+                             (-> js/d3
+                                 (.select "svg#d3-day")
+                                 (.selectAll "circle.first")
+                                 (.data (clj->js (take 1 projection)))
+                                 (.transition transition)
+                                 (.attr "cx" #(aget % 0))
+                                 (.attr "cy" #(aget % 1)))
                              (when-not (empty? rest-data)
                                (recur rest-data transition)))))))
               (-> js/d3
                   (.select "svg#d3-day")
                   (.selectAll "circle.later")
-                  (.data projection1)
+                  (.data (clj->js (rest projection1)))
                   .enter
                   (.append "circle")
                   (.attr "class" "later")
                   (.attr "cx" #(aget % 0))
                   (.attr "cy" #(aget % 1))
                   (.attr "r" .004363323129985824)
-                  (.style "fill" #(.hex (sun-scale1 (aget % 1))))))))]
+                  (.style "fill" #(.hex (sun-scale1 (aget % 1)))))
+              (-> js/d3
+                  (.select "svg#d3-day")
+                  (.selectAll "circle.first")
+                  (.data (clj->js (take 1 projection1)))
+                  .enter
+                  (.append "circle")
+                  (.attr "class" "first")
+                  (.attr "cx" #(aget % 0))
+                  (.attr "cy" #(aget % 1))
+                  (.attr "r" .004363323129985824)
+                  (.style "fill" "#42f47a")))))]
     (r/create-class
      {:component-will-mount calc
       :component-did-mount render
@@ -212,13 +228,13 @@
         (let [start-ms (.getTime now)
               start-year (.getFullYear now)
               end-ms (.setFullYear (js/Date. start-ms) (inc start-year))
-              data*
+              data
               (->>
                (range start-ms (inc end-ms) (* 1000 60 60 24))
                (map #(analemma
                       sat/earth lat long (js/Date. %) d3-chroma-dots
                       proj/orthographic))
-               (map (fn [[proj horz-y zenith-y nadir-y]]
+               (map (fn [[projection horz-y zenith-y nadir-y]]
                       (let [above-horz (- horz-y
                                           (* 0.05 (- nadir-y zenith-y)))
                             below-horz (+ horz-y
@@ -231,10 +247,8 @@
                                            #js [zenith-y above-horz horz-y
                                                 below-horz nadir-y])
                                           (.mode "lab"))]
-                        [proj sun-scale]))))
-              viewbox (render/view-box (mapcat first data*))
-              data (map (fn [[projection sun-scale]]
-                          [(clj->js projection) sun-scale]) data*)]
+                        [projection sun-scale]))))
+              viewbox (render/view-box (mapcat first data))]
           (swap! local-state #(-> %
                                   (assoc :data data)
                                   (assoc :viewbox viewbox))))))))
@@ -263,24 +277,42 @@
                              (-> js/d3
                                  (.select "svg#d3-year")
                                  (.selectAll "circle.later")
-                                 (.data projection)
+                                 (.data (clj->js (rest projection)))
                                  (.transition transition)
                                  (.attr "cx" #(aget % 0))
                                  (.attr "cy" #(aget % 1))
                                  (.style "fill" #(.hex (sun-scale (aget % 1)))))
+                             (-> js/d3
+                                 (.select "svg#d3-year")
+                                 (.selectAll "circle.first")
+                                 (.data (clj->js (take 1 projection)))
+                                 (.transition transition)
+                                 (.attr "cx" #(aget % 0))
+                                 (.attr "cy" #(aget % 1)))
                              (when-not (empty? rest-data)
                                (recur rest-data transition)))))))
               (-> js/d3
                   (.select "svg#d3-year")
                   (.selectAll "circle.later")
-                  (.data projection1)
+                  (.data (clj->js (rest projection1)))
                   .enter
                   (.append "circle")
                   (.attr "class" "later")
                   (.attr "cx" #(aget % 0))
                   (.attr "cy" #(aget % 1))
                   (.attr "r" .004363323129985824)
-                  (.style "fill" #(.hex (sun-scale1 (aget % 1))))))))]
+                  (.style "fill" #(.hex (sun-scale1 (aget % 1)))))
+              (-> js/d3
+                  (.select "svg#d3-year")
+                  (.selectAll "circle.first")
+                  (.data (clj->js (take 1 projection1)))
+                  .enter
+                  (.append "circle")
+                  (.attr "class" "first")
+                  (.attr "cx" #(aget % 0))
+                  (.attr "cy" #(aget % 1))
+                  (.attr "r" .004363323129985824)
+                  (.style "fill" "#42f47a")))))]
     (r/create-class
      {:component-will-mount calc
       :component-did-mount render
