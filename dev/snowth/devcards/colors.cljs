@@ -148,7 +148,7 @@
 
 (defn d3-day-component
   [global-state]
-  (let [local-state (atom)
+  (let [local-state (r/atom {})
         calc (make-day-calc global-state local-state)
         render
         (fn [_]
@@ -156,23 +156,19 @@
                 viewbox (:viewbox @local-state)]
             (when viewbox
               (-> js/d3
-                  (.select "div#d3-day")
-                  (.append "svg")
+                  (.select "svg#d3-day")
                   (.attr "viewBox" (str/join "," viewbox))
-                  (.attr "width" "100%")
-                  (.attr "height" 900)
                   (.on "click"
                        (fn []
                          (loop [[[projection sun-scale] & rest-data] rest-data1
                                 t-parent (-> js/d3
-                                             (.select "div#d3-day")
-                                             (.selectAll "svg"))]
+                                             (.select "svg#d3-day"))]
                            (let [transition (-> t-parent
                                                 .transition
                                                 (.duration 125)
                                                 (.ease (.-easeLinear js/d3)))]
                              (-> js/d3
-                                 (.select "div#d3-day")
+                                 (.select "svg#d3-day")
                                  (.selectAll "circle.later")
                                  (.data projection)
                                  (.transition transition)
@@ -182,7 +178,7 @@
                              (when-not (empty? rest-data)
                                (recur rest-data transition)))))))
               (-> js/d3
-                  (.select "div#d3-day svg")
+                  (.select "svg#d3-day")
                   (.selectAll "circle.later")
                   (.data projection1)
                   .enter
@@ -202,7 +198,7 @@
       (fn []
         (let [{:keys [lat long now viewbox]} @global-state]
           (when (and lat long)
-            [:div {:id "d3-day" :width "100%" :height 900}])))})))
+            [:svg {:id "d3-day" :width "100%" :height 900}])))})))
 
 (defcard chroma-d3-day
   (dc/reagent d3-day-component)
@@ -245,7 +241,7 @@
 
 (defn d3-year-component
   [global-state]
-  (let [local-state (atom)
+  (let [local-state (r/atom {})
         calc (make-year-calc global-state local-state)
         render
         (fn [_]
@@ -253,23 +249,19 @@
                 viewbox (:viewbox @local-state)]
             (when viewbox
               (-> js/d3
-                  (.select "div#d3-year")
-                  (.append "svg")
+                  (.select "svg#d3-year")
                   (.attr "viewBox" (str/join "," viewbox))
-                  (.attr "width" "100%")
-                  (.attr "height" 900)
                   (.on "click"
                        (fn []
                          (loop [[[projection sun-scale] & rest-data] rest-data1
                                 t-parent (-> js/d3
-                                             (.select "div#d3-year")
-                                             (.selectAll "svg"))]
+                                             (.select "svg#d3-year"))]
                            (let [transition (-> t-parent
                                                 .transition
                                                 (.duration 125)
                                                 (.ease (.-easeLinear js/d3)))]
                              (-> js/d3
-                                 (.select "div#d3-year")
+                                 (.select "svg#d3-year")
                                  (.selectAll "circle.later")
                                  (.data projection)
                                  (.transition transition)
@@ -279,7 +271,7 @@
                              (when-not (empty? rest-data)
                                (recur rest-data transition)))))))
               (-> js/d3
-                  (.select "div#d3-year svg")
+                  (.select "svg#d3-year")
                   (.selectAll "circle.later")
                   (.data projection1)
                   .enter
@@ -299,7 +291,7 @@
       (fn []
         (let [{:keys [lat long now viewbox]} @global-state]
           (when (and lat long)
-            [:div {:id "d3-year" :width "100%" :height 900}])))})))
+            [:svg {:id "d3-year" :width "100%" :height 900}])))})))
 
 (defcard chroma-d3-year
   (dc/reagent d3-year-component)
