@@ -4,6 +4,13 @@
    [snowth.astro :as astro]
    [snowth.common :as c :refer [sin cos sqrt]]))
 
+(defprotocol Project
+  (project* [self center alt-az]))
+
+(defn project
+  [projector center alt-az]
+  (project* projector center alt-az))
+
 (defn center-info
   [coords]
   (let [min-max (juxt #(apply min %) #(apply max %))
@@ -20,38 +27,43 @@
      ::sin-center-alt (sin alt)
      ::cos-center-alt (cos alt)}))
 
-(defn orthographic
-  [center [alt az]]
-  (let [{:keys [::astro/alt-az ::sin-center-alt ::cos-center-alt]} center
-        [_ center-az] alt-az
-        delta-az (- az center-az)
-        x (* (cos alt) (sin delta-az))
-        y (- (* (sin alt)
-                cos-center-alt)
-             (* (cos alt)
-                (cos delta-az)
-                sin-center-alt))]
-    [x y]))
+(def orthographic
+  (reify Project
+    (project* [_ center [alt az]]
+      (let [{:keys [::astro/alt-az ::sin-center-alt ::cos-center-alt]} center
+            [_ center-az] alt-az
+            delta-az (- az center-az)
+            x (* (cos alt) (sin delta-az))
+            y (- (* (sin alt)
+                    cos-center-alt)
+                 (* (cos alt)
+                    (cos delta-az)
+                    sin-center-alt))]
+        [x y]))))
 
-(defn stereographic
-  [center [alt az :as pt-alt-az]]
-  (let [{:keys [::astro/alt-az ::sin-center-alt ::cos-center-alt]} center
-        [_ center-az] alt-az
-        [x* y*] (orthographic center pt-alt-az)
-        z* (+ (* (sin alt)
-                 sin-center-alt)
-              (* (cos alt)
-                 (cos (- az center-az))
-                 cos-center-alt))
-        scale-factor (/ 2 (+ z* 1))
-        x (if (= scale-factor js/Infinity)
-            js/Number.MAX_VALUE
-            (* x* scale-factor))
-        y (if (= scale-factor js/Infinity)
-            js/Number.MAX_VALUE
-            (* y* scale-factor))]
-    [x y]))
+(def stereographic
+  (reify Project
+    (project* [_ center [alt az :as pt-alt-az]]
+      (let [{:keys [::astro/alt-az ::sin-center-alt ::cos-center-alt]} center
+            [_ center-az] alt-az
+            [x* y*] (project orthographic center pt-alt-az)
+            z* (+ (* (sin alt)
+                     sin-center-alt)
+                  (* (cos alt)
+                     (cos (- az center-az))
+                     cos-center-alt))
+            scale-factor (/ 2 (+ z* 1))
+            x (if (= scale-factor js/Infinity)
+                js/Number.MAX_VALUE
+                (* x* scale-factor))
+            y (if (= scale-factor js/Infinity)
+                js/Number.MAX_VALUE
+                (* y* scale-factor))]
+        [x y]))))
 
+(s/def ::projector (s/with-gen
+                     #(satisfies? Project %)
+                     #(s/gen #{orthographic stereographic})))
 (s/def ::trig-range (s/and ::c/not-nan #(<= -1 % 1)))
 (s/def ::sin-center-alt ::trig-range)
 (s/def ::cos-center-alt ::trig-range)
@@ -60,10 +72,8 @@
                                    ::cos-center-alt]))
 (s/def ::point (s/tuple (s/and ::c/not-nan #(not= % js/Infinity))
                         (s/and ::c/not-nan #(not= % js/Infinity))))
-
-(s/def ::projection-fn
-  (s/with-gen
-    (s/fspec :args (s/cat :center ::center-info
-                          :alt-az (s/spec ::astro/alt-az))
-             :ret ::point)
-    #(s/gen #{orthographic stereographic})))
+(s/fdef project
+        :args (s/cat :projector ::projector
+                     :center ::center-info
+                     :alt-az (s/spec ::astro/alt-az))
+        :ret ::point)

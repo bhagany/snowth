@@ -21,29 +21,26 @@
    (analemma satellite latitude longitude datetime
              render/dots proj/orthographic))
 
-  ([satellite latitude longitude datetime render-or-proj-fn]
-   (let [conformed (s/conform (s/or :projection-fn ::proj/projection-fn
-                                    :render-fn ::render/render-fn)
-                              render-or-proj-fn)]
-     (if (= (first conformed) :projection-fn)
-       (analemma satellite latitude longitude datetime
-                 render/dots render-or-proj-fn)
-       (analemma satellite latitude longitude datetime
-                 render-or-proj-fn proj/orthographic))))
+  ([satellite latitude longitude datetime render-fn-or-projector]
+   (if (satisfies? proj/Project render-fn-or-projector)
+     (analemma satellite latitude longitude datetime
+               render/dots render-fn-or-projector)
+     (analemma satellite latitude longitude datetime
+               render-fn-or-projector proj/orthographic)))
 
-  ([satellite latitude longitude datetime render-fn projection-fn]
+  ([satellite latitude longitude datetime render-fn projector]
    (let [coords (astro/analemma-coords satellite latitude longitude datetime)
          {[_ center-az] ::astro/alt-az :as center} (proj/center-info coords)
          projection (->> coords
                          (map astro/alt-az)
-                         (map #(projection-fn center %)))
-         horizon (map #(projection-fn center [0 %])
+                         (map #(proj/project projector center %)))
+         horizon (map #(proj/project projector center [0 %])
                       (range (- center-az (/ pi 2))
                              (+ center-az (/ pi 2))
                              (/ pi 180)))
-         center-horizon (projection-fn center [0 center-az])
-         zenith (projection-fn center [(/ pi 2) 0])
-         nadir (projection-fn center [(/ pi -2) 0])]
+         center-horizon (proj/project projector center [0 center-az])
+         zenith (proj/project projector center [(/ pi 2) 0])
+         nadir (proj/project projector center [(/ pi -2) 0])]
      (render-fn projection horizon center-horizon zenith nadir))))
 
 (s/def ::analemma-args (s/cat :satellite ::sat/satellite
@@ -51,5 +48,5 @@
                               :longitude ::astro/longitude
                               :datetime ::c/valid-datetime
                               :render-fn (s/? ::render/render-fn)
-                              :projection-fn (s/? ::proj/projection-fn)))
+                              :projector (s/? ::proj/projector)))
 (s/fdef analemma :args ::analemma-args)
