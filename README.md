@@ -80,6 +80,6 @@ which takes three arguments:
   - `:snowth.astro/alt-az`: an `[altitude azimuth]` pair indicating the center of the analemma, which will be `[0 0]` in the projection
   - `:snowth.projections/sin-center-alt`: the `sin` of the center point's altitude, calculated beforehand because it is the same across multiple individual projections
   - `:snowth.projections/cos-center-alt`: the `cos` of the center point's altitude, calculated for the same reasons as `:snowth.projections/sin-center-alt`
-- `point`: an `[altitude aziumth]` pair to project to `[x y]` coordinates
+- `point`: an `[altitude azimuth]` pair to project to `[x y]` coordinates
 
 The return value should be an `[x y]` pair.
