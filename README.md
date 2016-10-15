@@ -26,7 +26,7 @@ from the other. Snowth can generate the analemmas for any of these other situati
 ## Installation
 To install from Clojars, add this to your dependencies:
 ```
-[snowth "0.1.0"]
+[snowth "0.1.1"]
 ```
 
 ## Basic usage
