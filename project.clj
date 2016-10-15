@@ -39,9 +39,10 @@
                 :figwheel {:devcards true}
                 :compiler {:output-to     "resources/public/cljs/snowth.js"
                            :output-dir    "resources/public/cljs/out"
+                           :source-map    true
+                           :source-map-timestamp true
                            :main snowth.devcards.core
                            :asset-path    "cljs/out"
-                           :source-map    true
                            :optimizations :none
                            :recompile-dependents true
                            :parallel-build true
@@ -51,6 +52,7 @@
                 :compiler {:output-to "docs/gh-pages.js"
                            :output-dir "docs/out"
                            :source-map "docs/gh-pages.js.map"
+                           :source-map-timestamp true
                            :asset-path "out"
                            :main snowth.devcards.core
                            :devcards true
