@@ -4,6 +4,21 @@
    [snowth.devcards.common :refer [analemma-card state]]
    [snowth.satellites :as sat]))
 
+(defcard
+  "# Planets
+  Any body that orbits another will result in _some_ analemma pattern,
+  including the other planets in our solar system. Below, you'll find
+  solar analemmas for each planet as they appear right now, as though
+  your latitude and longitude on each planet were the same as your latitude
+  and longitude on Earth.
+
+  The red dot is the sun's position right now. If you see a black line,
+  that is the horizon - the sun would not be visible below it, but I'm showing
+  more than you could actually see with your eyes here.
+
+  There's no need to refresh the page to get current analemmas - they
+  update automatically as time passes.")
+
 (defcard earth
   (analemma-card sat/earth)
   state)
@@ -28,7 +43,10 @@
   (analemma-card sat/neptune)
   state)
 
-;; These are pretty uninteresting, including for completeness
+(defcard
+  "I've included Mercury and Venus below for completeness, but they
+  don't rotate fast enough relative to their orbital period to make
+  very interesting analemmas")
 
 (defcard mercury
   (analemma-card sat/mercury)

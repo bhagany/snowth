@@ -5,9 +5,9 @@ A library for generating analemmas, given orbital parameters
 
 If you've learned about earth's seasons and axial tilt, you are probably familiar with the idea that the
 sun's path through the sky moves from day to day.  If you were to take a picture of the sun every day at the
-same time, from the same place, and from the same angle, the result of composing those images would be a pattern
-that is specific to your latitude and the time of day you chose. That pattern is called an analemma, and this
-is a library for calculating and displaying them.
+same time, from the same place, and at the same angle, the result of composing those images would be a pattern
+that is specific to your latitude and the time of day you chose. Snowth calculates and displays these patterns,
+called "analemmas."
 
 ## Installation
 To install from Clojars, add this to your dependencies:
@@ -40,7 +40,7 @@ satellite by implementing the Satellite protocol; see the implementations in `sn
 
 ### Customizing rendering
 
-By default, `snowth` outputs svg-flavored hiccup, but you can pass your own render function as the 5th or 6th
+By default, snowth outputs svg-flavored hiccup, but you can pass your own render function as the 5th or 6th
 parameter to `analemma`.  Render functions take 5 parameters:
 
 - `projection`: a seq of `[x y]` points corresponding to the points of the analemma

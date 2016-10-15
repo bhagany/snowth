@@ -94,6 +94,12 @@
   (analemma-card sat/earth chroma-dots)
   d3-state)
 
+(defcard
+  "# D3 examples
+  These examples use D3 to animate the analemmas, over the course of a day, and
+  at the same time every day for a year, respectively. Click to start the
+  animation")
+
 (defn d3-chroma-dots
   [projection horizon [_ center-horizon-y] [_ zenith-y] [_ nadir-y]]
   ;; svg coordinates are upside down
