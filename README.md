@@ -16,10 +16,10 @@ called "analemmas."
 (There is a bit more to it than this, but that's the basic idea)
 
 On Earth, the analemma that the sun makes over the course of the year will always be very close to the same shape,
-but its orientation will vary with your latitude and the time of day. But other planets have analemmas too! Jupiter's
-is an oval; Mars has a teardrop. If we know some basic orbital parameters of anything that orbits another thing, we can
-generate an analemma that one makes when viewed from the other. Snowth can generate the analemmas for any of these other
-situations, too.
+but its orientation will vary with your latitude and the time of day; the image above is what you'd see in the northern
+hemisphere at noon. But other planets have analemmas too! Jupiter's is an oval; Mars has a teardrop. If we know some
+basic orbital parameters of anything that orbits another thing, we can generate an analemma that one makes when viewed
+from the other. Snowth can generate the analemmas for any of these other situations, too.
 
 ## Installation
 To install from Clojars, add this to your dependencies:
@@ -71,10 +71,15 @@ I opted for altitude and azimuth for easy calculation of the horizon, zenith, an
 to be projected onto a 2-d plane in order to display them on a screen. I've included both orthographic and sterographic
 projections in `snowth.projections`, which are very similar to each other on the scale of earth's analemma. Unless you
 have special requirements, these should be more than you need.  However, if you find yourself needing to customize the
-projection, you can pass a function as the 5th or 6th (if you're also passing a render function) argument to `analemma`.
-Projection functions take two arguments:
+projection, you can pass an object that implements the `snowth.projections/Project` protocol as the 5th or 6th (if
+you're also passing a render function) argument to `analemma`. The protocol has only a single function, `project*`,
+which takes three arguments:
 
-- `center`: an `[altitude azimuth]` pair indicating the center of the analemma, which will be `[0 0]` in the projection
+- `self`: the object that implements `Project`
+- `center`: a map with the following keys
+  - `:snowth.astro/alt-az`: an `[altitude azimuth]` pair indicating the center of the analemma, which will be `[0 0]` in the projection
+  - `:snowth.projections/sin-center-alt`: the `sin` of the center point's altitude, calculated beforehand because it is the same across multiple individual projections
+  - `:snowth.projections/cos-center-alt`: the `cos` of the center point's altitude, calculated for the same reasons as `:snowth.projections/sin-center-alt`
 - `point`: an `[altitude aziumth]` pair to project to `[x y]` coordinates
 
 The return value should be an `[x y]` pair.
