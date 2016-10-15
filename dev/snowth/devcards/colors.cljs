@@ -63,9 +63,11 @@
         below-horizon-stop (+ center-horizon-y
                               (* 0.05
                                  (- nadir-y zenith-y)))
-        horizon-pct (int (* 100 (/ (- center-horizon-y y) (- nadir-y zenith-y))))
+        horizon-pct (int (* 100 (/ (- center-horizon-y y)
+                                   (- nadir-y zenith-y))))
         sun-scale (-> js/chroma
-                      (.scale #js ["#fdffe8" "#f9ff40" "#ff6000" "#e31e00" "#691048"])
+                      (.scale #js ["#fdffe8" "#f9ff40" "#ff6000"
+                                   "#e31e00" "#691048"])
                       (.mode "lab")
                       (.domain #js [zenith-y
                                     above-horizon-stop
@@ -79,7 +81,8 @@
           [[:stop {:offset "0%" :stop-color "#a6e3f7"}]
            [:stop {:offset (str horizon-pct "%") :stop-color "#2f3e7a"}]
            [:stop {:offset "100%" :stop-color "#162047"}]]]]]
-       [:rect {:x x :y zenith-y :width width :height (- nadir-y zenith-y) :fill "url(#sky-gradient)"}]]
+       [:rect {:x x :y zenith-y :width width
+               :height (- nadir-y zenith-y) :fill "url(#sky-gradient)"}]]
       (map #(-> [:circle {:cx (first %)
                           :cy (second %)
                           :r .004363323129985824
