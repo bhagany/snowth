@@ -1,4 +1,4 @@
-# snowth <img src="https://cdn.rawgit.com/bhagany/snowth/master/analemma.svg" height="70" alt="sample analemma" />
+# snowth
 A library for generating analemmas from orbital parameters
 
 ## A library for... what now?
