@@ -1,13 +1,25 @@
-# snowth
-A library for generating analemmas, given orbital parameters
+# snowth <img src="https://cdn.rawgit.com/bhagany/snowth/master/analemma.svg" height="70" alt="sample analemma" />
+A library for generating analemmas from orbital parameters
 
 ## A library for... what now?
 
+Snowth makes these:
+
+<img src="https://cdn.rawgit.com/bhagany/snowth/master/analemma.svg" height="350" alt="sample analemma" />
+
 If you've learned about earth's seasons and axial tilt, you are probably familiar with the idea that the
-sun's path through the sky moves from day to day.  If you were to take a picture of the sun every day at the
-same time, from the same place, and at the same angle, the result of composing those images would be a pattern
-that is specific to your latitude and the time of day you chose. Snowth calculates and displays these patterns,
+sun's path through the sky moves from day to day. Because of this yearly motion, if you were to take a picture
+of the sun every day at the same time, from the same place, and at the same angle, the result of composing those
+images would make a pattern that looks a lot like the image above. Snowth calculates and displays these patterns,
 called "analemmas."
+
+(There is a bit more to it than this, but that's the basic idea)
+
+On Earth, the analemma that the sun makes over the course of the year will always be very close to the same shape,
+but its orientation will vary with your latitude and the time of day. But other planets have analemmas too! Jupiter's
+is an oval; Mars has a teardrop. If we know some basic orbital parameters of anything that orbits another thing, we can
+generate an analemma that one makes when viewed from the other. Snowth can generate the analemmas for any of these other
+situations, too.
 
 ## Installation
 To install from Clojars, add this to your dependencies:
