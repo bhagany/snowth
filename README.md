@@ -17,9 +17,11 @@ called "analemmas."
 
 On Earth, the analemma that the sun makes over the course of the year will always be very close to the same shape,
 but its orientation will vary with your latitude and the time of day; the image above is what you'd see in the northern
-hemisphere at noon. But other planets have analemmas too! Jupiter's is an oval; Mars has a teardrop. If we know some
+hemisphere at noon. But other planets have analemmas too! [Jupiter's is an oval](https://bhagany.github.io/snowth/#!/snowth.devcards.planets/jupiter); [Mars has a teardrop](https://bhagany.github.io/snowth/#!/snowth.devcards.planets/mars). If we know some
 basic orbital parameters of anything that orbits another thing, we can generate an analemma that one makes when viewed
-from the other. Snowth can generate the analemmas for any of these other situations, too.
+from the other. Snowth can generate the analemmas for any of these other situations, too. [There are many more examples for you to explore](https://bhagany.github.io/snowth/).
+
+
 
 ## Installation
 To install from Clojars, add this to your dependencies:
