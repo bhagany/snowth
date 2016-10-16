@@ -16,14 +16,16 @@
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]))
 
 (defcard
-  "# Color Scales and Animations
+  "# Animations and Color Scales
 
   Experiments with varying the color of the sun and sky with altitude, and a
   proving ground for making sure that `snowth` is flexible enough to be used
   for animations.
 
-  These analemmas do not auto-update as time passes - they reflect your time
-  and location when the page was loaded.")
+  These analemmas do not auto-update as time passes, because time updates
+  during animations wouldn't make for a pleasant viewing experience. Instead,
+  they reflect your time and location when the page was loaded. However, you
+  can manually reset the time with the button below.")
 
 (defonce d3-state
   (let [a (r/atom {:now (js/Date.)})
@@ -41,73 +43,18 @@
       (close! location-ch))
     a))
 
-(defcard reset-time
+(defcard
   (fn [state _]
     (sab/html
      [:div
       [:button
        {:onClick (fn [] (swap! state #(assoc % :now (js/Date.))))}
        "Reset time"]
-      [:span (str (:now @state))]]))
-  d3-state)
-
-(defn chroma-dots
-  [projection horizon [_ center-horizon-y] [_ zenith-y] [_ nadir-y]]
-  ;; svg coordinates are upside down
-  (let [projection (map (fn [[x y]] [x (- y)]) projection)
-        [x y width height :as viewbox-data] (render/view-box projection)
-        horizon (->> horizon
-                     (map (fn [[x y]] [x (- y)]))
-                     (drop-while #(< (first %) x))
-                     (take-while #(<= (first %) (+ x width))))
-        horizon-d (->> (rest horizon)
-                       (map #(str "L" (str/join " " %)))
-                       (into [(str "M" (str/join " " (first horizon)))]))
-        center-horizon-y (- center-horizon-y)
-        zenith-y (- zenith-y)
-        nadir-y (- nadir-y)
-        above-horizon-stop (- center-horizon-y
-                              (* 0.05
-                                 (- nadir-y zenith-y)))
-        below-horizon-stop (+ center-horizon-y
-                              (* 0.05
-                                 (- nadir-y zenith-y)))
-        horizon-pct (int (* 100 (/ (- center-horizon-y y)
-                                   (- nadir-y zenith-y))))
-        sun-scale (-> js/chroma
-                      (.scale #js ["#fdffe8" "#f9ff40" "#ff6000"
-                                   "#e31e00" "#691048"])
-                      (.mode "lab")
-                      (.domain #js [zenith-y
-                                    above-horizon-stop
-                                    center-horizon-y
-                                    below-horizon-stop
-                                    nadir-y]))]
-    [:svg {:width "100%" :height 900 :viewBox (str/join "," viewbox-data)}
-     (concat
-      [[:defs
-        [[:linearGradient {:id "sky-gradient" :x1 "0" :x2 "0" :y1 "0" :y2 "1"}
-          [[:stop {:offset "0%" :stop-color "#a6e3f7"}]
-           [:stop {:offset (str horizon-pct "%") :stop-color "#2f3e7a"}]
-           [:stop {:offset "100%" :stop-color "#162047"}]]]]]
-       [:rect {:x x :y zenith-y :width width
-               :height (- nadir-y zenith-y) :fill "url(#sky-gradient)"}]]
-      (map #(-> [:circle {:cx (first %)
-                          :cy (second %)
-                          :r .004363323129985824
-                          :style {"fill" (.hex (sun-scale (second %)))}}])
-           (rest projection))
-      [[:circle {:cx (ffirst projection)
-                 :cy (second (first projection))
-                 :r .004363323129985824
-                 :style {"fill" "#72f276"}}]])]))
-
-(defcard chroma
-  (analemma-card sat/earth chroma-dots)
+      [:div [:strong "Analemmas generated at: "] (str (:now @state))]]))
   d3-state)
 
 (defcard
-  "# D3 examples
+  "## D3 examples
   These examples use D3 to animate the analemmas, over the course of a day, and
   at the same time every day for a year, respectively. Click to start the
   animation")
@@ -204,6 +151,8 @@
                   (.select "svg#d3-day")
                   (.selectAll "circle.later")
                   (.data (clj->js (rest projection1)))
+                  (.attr "cx" #(aget % 0))
+                  (.attr "cy" #(aget % 1))
                   .enter
                   (.append "circle")
                   (.attr "class" "later")
@@ -215,6 +164,8 @@
                   (.select "svg#d3-day")
                   (.selectAll "circle.first")
                   (.data (clj->js (take 1 projection1)))
+                  (.attr "cx" #(aget % 0))
+                  (.attr "cy" #(aget % 1))
                   .enter
                   (.append "circle")
                   (.attr "class" "first")
@@ -232,7 +183,8 @@
       (fn []
         (let [{:keys [lat long now viewbox]} @global-state]
           (when (and lat long)
-            [:svg {:id "d3-day" :width "100%" :height 900}])))})))
+            [:svg {:id "d3-day" :width "100%" :height 900
+                   :data-time (str now)}])))})))
 
 (defcard chroma-d3-day
   (dc/reagent d3-day-component)
@@ -341,8 +293,73 @@
       (fn []
         (let [{:keys [lat long now viewbox]} @global-state]
           (when (and lat long)
-            [:svg {:id "d3-year" :width "100%" :height 900}])))})))
+            [:svg {:id "d3-year" :width "100%" :height 900
+                   :data-time (str now)}])))})))
 
 (defcard chroma-d3-year
   (dc/reagent d3-year-component)
+  d3-state)
+
+(defcard
+  "## Color gradients
+
+  This idea is still a bit half-baked, but what I'm trying to do here is vary
+  the background sky and the sun color based on altitude, to approximate kind
+  of a real-life composite of what you would actually see over the course of a
+  year. That is, if you could see through the earth, and also that it produced
+  a more pronounced reddening effect than the atmosphere does.")
+
+(defn chroma-dots
+  [projection horizon [_ center-horizon-y] [_ zenith-y] [_ nadir-y]]
+  ;; svg coordinates are upside down
+  (let [projection (map (fn [[x y]] [x (- y)]) projection)
+        [x y width height :as viewbox-data] (render/view-box projection)
+        horizon (->> horizon
+                     (map (fn [[x y]] [x (- y)]))
+                     (drop-while #(< (first %) x))
+                     (take-while #(<= (first %) (+ x width))))
+        horizon-d (->> (rest horizon)
+                       (map #(str "L" (str/join " " %)))
+                       (into [(str "M" (str/join " " (first horizon)))]))
+        center-horizon-y (- center-horizon-y)
+        zenith-y (- zenith-y)
+        nadir-y (- nadir-y)
+        above-horizon-stop (- center-horizon-y
+                              (* 0.05
+                                 (- nadir-y zenith-y)))
+        below-horizon-stop (+ center-horizon-y
+                              (* 0.05
+                                 (- nadir-y zenith-y)))
+        horizon-pct (int (* 100 (/ (- center-horizon-y y)
+                                   (- nadir-y zenith-y))))
+        sun-scale (-> js/chroma
+                      (.scale #js ["#fdffe8" "#f9ff40" "#ff6000"
+                                   "#e31e00" "#691048"])
+                      (.mode "lab")
+                      (.domain #js [zenith-y
+                                    above-horizon-stop
+                                    center-horizon-y
+                                    below-horizon-stop
+                                    nadir-y]))]
+    [:svg {:width "100%" :height 900 :viewBox (str/join "," viewbox-data)}
+     (concat
+      [[:defs
+        [[:linearGradient {:id "sky-gradient" :x1 "0" :x2 "0" :y1 "0" :y2 "1"}
+          [[:stop {:offset "0%" :stop-color "#a6e3f7"}]
+           [:stop {:offset (str horizon-pct "%") :stop-color "#2f3e7a"}]
+           [:stop {:offset "100%" :stop-color "#162047"}]]]]]
+       [:rect {:x x :y zenith-y :width width
+               :height (- nadir-y zenith-y) :fill "url(#sky-gradient)"}]]
+      (map #(-> [:circle {:cx (first %)
+                          :cy (second %)
+                          :r .004363323129985824
+                          :style {"fill" (.hex (sun-scale (second %)))}}])
+           (rest projection))
+      [[:circle {:cx (ffirst projection)
+                 :cy (second (first projection))
+                 :r .004363323129985824
+                 :style {"fill" "#72f276"}}]])]))
+
+(defcard chroma
+  (analemma-card sat/earth chroma-dots)
   d3-state)
