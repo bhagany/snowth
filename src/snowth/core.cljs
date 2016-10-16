@@ -47,6 +47,8 @@
                               :latitude ::astro/latitude
                               :longitude ::astro/longitude
                               :datetime ::c/valid-datetime
-                              :render-fn (s/? ::render/render-fn)
+                              :render-fn (s/? (s/with-gen
+                                                ::render/render-fn#
+                                                #(s/gen #{render/dots})))
                               :projector (s/? ::proj/projector)))
 (s/fdef analemma :args ::analemma-args)

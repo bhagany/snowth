@@ -19,6 +19,7 @@
                  [:ul
                   [:li [:strong "Lat, Long: "] (str latitude ", " longitude)]
                   [:li [:strong "Eccentricity: "] eccentricity]
-                  [:li [:strong "Ecliptic obliquity: "] (str obliquity "π radians")]
+                  [:li [:strong "Ecliptic obliquity: "] (str obliquity "π radians ("
+                                                             (* obliquity (/ 180 pi)) " degrees)")]
                   [:li [:strong "D's per orbit: "] ds-per-orbit]]
                  svg-data]))))
