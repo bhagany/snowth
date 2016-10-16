@@ -7,7 +7,20 @@
    [snowth.common :refer [pi]]
    [snowth.core :as core :refer [analemma]]))
 
-(doseq [[args svg-data] (s/exercise-fn 'analemma)]
+(defcard
+  "# Randomly generated satellites
+
+  Now this is pretty cool. Thanks to the magic of `clojure.spec`, the code
+  specification for a satellite in `snowth` can be used to randomly generate
+  satellites that conform to itself. This can be used to test that the code for
+  handling satellites doesn't break, and also to show you a bunch of cool
+  analemmas for planets that don't necessarily exist.
+
+  These analemmas will be unique for every page load, and I can't guarantee
+  that each one will be displayed optimally, but they are usually pretty good.
+  Enjoy!")
+
+(doseq [[args svg-data] (s/exercise-fn 'analemma 20)]
   (let [{:keys [satellite latitude longitude datetime]}
         (s/conform ::core/analemma-args args)
         start-d (astro/datetime->d satellite datetime)
@@ -18,7 +31,7 @@
       (sab/html [:div
                  [:ul
                   [:li [:strong "Lat, Long: "] (str latitude ", " longitude)]
-                  [:li [:strong "Eccentricity: "] eccentricity]
+                  [:li [:strong "Orbital Eccentricity (0=circle, 1=parabola): "] eccentricity]
                   [:li [:strong "Ecliptic obliquity: "] (str obliquity "π radians ("
                                                              (* obliquity (/ 180 pi)) " degrees)")]
                   [:li [:strong "D's per orbit: "] ds-per-orbit]]
