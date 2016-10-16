@@ -188,7 +188,7 @@
          :periapsis-step ::step
          :eccentricity-start ::c/eccentricity
          :mean-anomaly-start ::c/positive-angle
-         :mean-anomaly-step (s/and ::c/positive-angle #(not= 0 %))
+         :mean-anomaly-step (s/and ::c/positive-angle #(not= 0 %) #(< % (/ pi 64)))
          :ecliptic-obliquity-start ::c/positive-angle
          :ecliptic-obliquity-step ::step
          :rotation-offset ::c/positive-angle))
@@ -234,6 +234,4 @@
 
 (s/def ::satellite (s/with-gen
                      #(satisfies? Satellite %)
-                     #(gen/one-of [(satellite-arg-gen)
-                                   (s/gen #{mercury venus earth mars jupiter
-                                            saturn uranus neptune})])))
+                     satellite-arg-gen))
