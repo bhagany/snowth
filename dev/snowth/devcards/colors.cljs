@@ -15,6 +15,16 @@
    [snowth.satellites :as sat])
   (:require-macros [cljs.core.async.macros :refer [go go-loop]]))
 
+(defcard
+  "# Color Scales and Animations
+
+  Experiments with varying the color of the sun and sky with altitude, and a
+  proving ground for making sure that `snowth` is flexible enough to be used
+  for animations.
+
+  These analemmas do not auto-update as time passes - they reflect your time
+  and location when the page was loaded.")
+
 (defonce d3-state
   (let [a (r/atom {:now (js/Date.)})
         location-ch (chan)
