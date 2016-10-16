@@ -39,7 +39,6 @@
       (<! (timeout 5000))
       (swap! a (change-location (<! location-ch)))
       (close! location-ch))
-    #_(js/setInterval #(swap! state assoc-in [:now] (js/Date.)) 30000)
     a))
 
 (defcard reset-time
