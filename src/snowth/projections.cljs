@@ -53,10 +53,10 @@
                      (cos (- az center-az))
                      cos-center-alt))
             scale-factor (/ 2 (+ z* 1))
-            x (if (= scale-factor js/Infinity)
+            x (if (infinite? scale-factor)
                 js/Number.MAX_VALUE
                 (* x* scale-factor))
-            y (if (= scale-factor js/Infinity)
+            y (if (infinite? scale-factor)
                 js/Number.MAX_VALUE
                 (* y* scale-factor))]
         [x y]))))
@@ -64,14 +64,14 @@
 (s/def ::projector (s/with-gen
                      #(satisfies? Project %)
                      #(s/gen #{orthographic stereographic})))
-(s/def ::trig-range (s/and ::c/not-nan #(<= -1 % 1)))
+(s/def ::trig-range (s/double-in :min -1 :max 1 :NaN? false))
 (s/def ::sin-center-alt ::trig-range)
 (s/def ::cos-center-alt ::trig-range)
 (s/def ::center-info (s/keys :req [::astro/alt-az
                                    ::sin-center-alt
                                    ::cos-center-alt]))
-(s/def ::point (s/tuple (s/and ::c/not-nan #(not= % js/Infinity))
-                        (s/and ::c/not-nan #(not= % js/Infinity))))
+(s/def ::point (s/tuple (s/double-in :NaN? false :infinite? false)
+                        (s/double-in :NaN? false :infinite? false)))
 (s/fdef project
         :args (s/cat :projector ::projector
                      :center ::center-info

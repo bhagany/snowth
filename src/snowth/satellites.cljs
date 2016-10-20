@@ -179,7 +179,7 @@
         (/ (* 2 pi) mean-anomaly-step)))))
 
 (s/def ::step (s/with-gen
-                (s/and number? #(<= -1 % 1))
+                (s/double-in :min -1 :max 1 :NaN? false)
                 (fn [] (gen/fmap #(/ % 100000000) (s/gen (s/int-in 0 1000))))))
 (s/def ::root-satellite-args
   (s/cat :epoch ::c/valid-datetime

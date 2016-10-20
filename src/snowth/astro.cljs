@@ -16,7 +16,7 @@
 (s/fdef datetime->d
         :args (s/cat :satellite ::sat/satellite
                      :datetime ::c/valid-datetime)
-        :ret ::c/not-nan)
+        :ret (s/double-in :NaN? false))
 
 (defn constrain-angle
   "Constrains an angle to be between 0 and the provided constraint, through
@@ -40,17 +40,17 @@
    (fn [sat]
      (gen/tuple
       (gen/return sat)
-      (s/gen (s/and ::c/not-nan
-                    #(>= % (datetime->d
-                            sat
-                            (js/Date. (+ c/min-datetime 1))))
-                    #(<= % (datetime->d
-                            sat
-                            (js/Date. (- c/max-datetime 1))))))))))
+      (s/gen (s/and (s/double-in :min (datetime->d
+                                       sat
+                                       (js/Date. (+ c/min-datetime 1)))
+                                 :max (datetime->d
+                                       sat
+                                       (js/Date. (- c/max-datetime 1)))
+                                 :NaN? false)))))))
 
 (s/def ::satellite-d-args  (s/with-gen
                              (s/cat :satellite ::sat/satellite
-                                    :d ::c/not-nan)
+                                    :d (s/double-in :NaN? false))
                              satellite-d-gen))
 
 (s/fdef argument-of-periapsis
@@ -103,7 +103,7 @@
 
 (s/fdef ds-per-orbit
         :args (s/cat :satellite ::sat/satellite)
-        :ret ::c/not-nan)
+        :ret (s/double-in :NaN? false))
 
 (defn eccentric-anomaly
   "It's hard to explain with words, but this is an orbital parameter related
@@ -192,9 +192,9 @@
                              (s/cat :satellite ::sat/satellite
                                     :latitude-radians ::c/half-angle
                                     :longitude-radians ::c/angle
-                                    :d ::c/not-nan)
+                                    :d (s/double-in :NaN? false))
                              horiz-coords-args-gen))
-(s/def ::normal-coord (s/and ::c/not-nan #(<= -1 % 1)))
+(s/def ::normal-coord (s/double-in :min -1 :max 1 :NaN? false))
 (s/def ::horiz-coords (s/cat :x ::normal-coord
                              :y ::normal-coord
                              :z ::normal-coord))
@@ -232,8 +232,8 @@
          (take num-samples)
          (map #(horiz-coords satellite latitude-rad longitude-rad %)))))
 
-(s/def ::latitude (s/and ::c/not-nan #(<= -90 % 90)))
-(s/def ::longitude (s/and ::c/not-nan #(<= -180 % 180)))
+(s/def ::latitude (s/double-in :min -90 :max 90 :NaN? false))
+(s/def ::longitude (s/double-in :min -180 :max 180 :NaN? false))
 
 (s/fdef analemma-coords
         :args (s/cat :satellite ::sat/satellite
