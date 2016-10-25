@@ -33,7 +33,7 @@
         (/ (- (.getTime datetime) j2000-ms)
            15201360000))
       (-argument-of-periapsis [_ d]
-        (+ 0.508311 (* 3.1151e-5 d)))
+        (+ 0.878363 (* 3.1151e-5 d)))
       (-eccentricity [_ d]
         (+ 0.20563069 (* 1.217e-7 d)))
       (-ecliptic-obliquity [_ d]
@@ -52,7 +52,7 @@
         (/ (- (.getTime datetime) j2000-ms)
            10087200000))
       (-argument-of-periapsis [_ d]
-        (+ 0.958029 (* 2.81960e-5 d)))
+        (+ 4.42891 (* 2.81960e-5 d)))
       (-eccentricity [_ d]
         (+ 0.00677323 (* -2.378e-7 d)))
       (-ecliptic-obliquity [_ d]
@@ -71,7 +71,7 @@
         (/ (- (.getTime datetime) j2000-ms)
            86400000))
       (-argument-of-periapsis [_ d]
-        (+ 4.938242 (* 8.21937e-7 d)))
+        (+ 4.938187 (* 8.21937e-7 d)))
       (-eccentricity [_ d]
         (+ 0.016709 (* -1.151e-9 d)))
       (-ecliptic-obliquity [_ d]
@@ -90,7 +90,7 @@
         (/ (- (.getTime datetime) j2000-ms)
            88775244))
       (-argument-of-periapsis [_ d]
-        (+ 5.000396 (* 5.25370e-7 d)))
+        (+ 4.38085 (* 5.25370e-7 d)))
       (-eccentricity [_ d]
         (+ .09341233 (* 3.34817272e-9 d)))
       (-ecliptic-obliquity [_ d]
@@ -109,7 +109,7 @@
         (/ (- (.getTime datetime) j2000-ms)
            35733240))
       (-argument-of-periapsis [_ d]
-        (+ 4.780068 (* 1.18745e-7 d)))
+        (+ 0.9966092 (* 1.18745e-7 d)))
       (-eccentricity [_ d]
         (+ 0.04839266 (* -1.4584e-9 d)))
       (-ecliptic-obliquity [_ d]
@@ -128,7 +128,7 @@
         (/ (- (.getTime datetime) j2000-ms)
            38361600))
       (-argument-of-periapsis [_ d]
-        (+ 5.923541 (* 2.30665e-7 d)))
+        (+ 4.87747 (* 2.30665e-7 d)))
       (-eccentricity [_ d]
         (+ 0.05415060 (* -4.4688e-9 d)))
       (-ecliptic-obliquity [_ d]
@@ -147,7 +147,7 @@
         (/ (- (.getTime datetime) j2000-ms)
            62064000))
       (-argument-of-periapsis [_ d]
-        (+ 1.68706 (* 3.8320e-7 d)))
+        (+ 3.2369 (* 3.8320e-7 d)))
       (-eccentricity [_ d]
         (+ 0.04716771 (* -3.7662e-9 d)))
       (-ecliptic-obliquity [_ d]
@@ -166,7 +166,7 @@
         (/ (- (.getTime datetime) j2000-ms)
            57996000))
       (-argument-of-periapsis [_ d]
-        (+ 4.762063 (* -7.06e-8 d)))
+        (+ 0.038572 (* -7.06e-8 d)))
       (-eccentricity [_ d]
         (+ 0.00858587 (* 4.61e-10 d)))
       (-ecliptic-obliquity [_ d]
