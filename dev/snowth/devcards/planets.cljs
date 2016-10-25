@@ -43,6 +43,10 @@
   (analemma-card sat/neptune)
   state)
 
+(defcard pluto
+  (analemma-card sat/pluto)
+  state)
+
 (defcard
   "I've included Mercury and Venus below for completeness, but they
   don't rotate fast enough relative to their orbital period to make

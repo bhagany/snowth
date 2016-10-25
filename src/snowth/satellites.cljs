@@ -178,6 +178,25 @@
       (-ds-per-orbit [_]
         (/ (* 2 pi) mean-anomaly-step)))))
 
+(def pluto
+  (let [mean-anomaly-step 0.002784218]
+    (reify Satellite
+      (-datetime->d [_ datetime]
+        (/ (- (.getTime datetime) j2000-ms)
+           551815200))
+      (-argument-of-periapsis [_ d]
+        (+ 0.079385 (* -7.218e-9 d)))
+      (-eccentricity [_ d]
+        (+ 0.24880766 (* 1.77e-9 d)))
+      (-ecliptic-obliquity [_ d]
+        2.087545)
+      (-mean-anomaly [_ d]
+        (+ 0.25939171 (* mean-anomaly-step d)))
+      (-rotation [_ d]
+        (* 2 pi (- d (int d))))
+      (-ds-per-orbit [_]
+        (/ (* 2 pi) mean-anomaly-step)))))
+
 (s/def ::step (s/with-gen
                 (s/double-in :min -1 :max 1 :NaN? false)
                 (fn [] (gen/fmap #(/ % 100000000) (s/gen (s/int-in 0 1000))))))
