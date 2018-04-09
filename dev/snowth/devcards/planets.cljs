@@ -1,7 +1,7 @@
 (ns snowth.devcards.planets
   (:require
    [devcards.core :as dc :refer-macros [defcard]]
-   [snowth.devcards.common :refer [analemma-card state]]
+   [snowth.devcards.common :refer [analemma-card place-card state]]
    [snowth.satellites :as sat]))
 
 (defcard
@@ -18,6 +18,10 @@
 
   There's no need to refresh the page to get current analemmas - they
   update automatically as time passes.")
+
+(defcard
+  (place-card)
+  state)
 
 (defcard earth
   (analemma-card sat/earth)

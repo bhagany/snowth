@@ -1,6 +1,7 @@
 (ns snowth.devcards.common
   (:require
    [clojure.core.async :refer [chan <! put! close!]]
+   [reagent.core :as r]
    [sablono.core :as sab :include-macros true]
    [snowth.core :as core :refer [analemma]])
   (:require-macros [cljs.core.async.macros :refer [go]]))
@@ -16,20 +17,11 @@
        (assoc-in [:long] (or (.-longitude coords) default-long))))
 
 (defonce state
-  (let [a (atom {:now (js/Date.)})
-        location-ch (chan)
-        defaults #js {:latitude default-lat :longitude default-long}]
-    (if-let [gl (.-geolocation js/navigator)]
-      (.getCurrentPosition gl
-                           #(put! location-ch (.-coords %))
-                           #(put! location-ch defaults)
-                           #js {:timeout 10000})
-      (put! location-ch defaults))
-    (go
-      (swap! a (change-location (<! location-ch)))
-      (close! location-ch))
-    (js/setInterval #(swap! state assoc-in [:now] (js/Date.)) 30000)
-    a))
+  (let [s (r/atom {:now (js/Date.)
+                   :lat default-lat
+                   :long default-long})]
+    (js/setInterval #(swap! s assoc-in [:now] (js/Date.)) 30000)
+    s))
 
 (defn analemma-card
   [sat & opt-args]
@@ -38,3 +30,39 @@
       (when (and lat long)
         (sab/html
          (apply analemma sat lat long now opt-args))))))
+
+(defn date-hiccup
+  [state]
+  [:div {:style {:marginTop "20px"}}
+   [:div [:strong "Analemmas generated at: "] (str (:now @state))]
+   [:button
+    {:onClick (fn [] (swap! state #(assoc % :now (js/Date.))))}
+    "Reset time"]])
+
+(defn place-hiccup
+  [state]
+  [:div
+   [:div [:strong "Lat: "] (:lat @state)]
+   [:div [:strong "Long: "] (:long @state)]
+   (when-let [gl (.-geolocation js/navigator)]
+     [:button
+      {:onClick (fn []
+                  (.getCurrentPosition gl
+                                       #(swap! state (change-location (.-coords %)))
+                                       #(.log js/console "location get failed")
+                                       #js {:timeout 10000}))}
+      "Use your location"])])
+
+(defn place-card
+  []
+  (fn [state _]
+    (sab/html
+     (place-hiccup state))))
+
+(defn place-and-date-card
+  []
+  (fn [state _]
+    (sab/html
+     [:div
+      (place-hiccup state)
+      (date-hiccup state)])))

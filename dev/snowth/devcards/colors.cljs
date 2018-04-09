@@ -9,7 +9,7 @@
    [reagent.core :as r]
    [sablono.core :as sab]
    [snowth.core :refer [analemma]]
-   [snowth.devcards.common :refer [analemma-card state default-lat default-long change-location]]
+   [snowth.devcards.common :refer [analemma-card place-and-date-card default-lat default-long]]
    [snowth.projections :as proj]
    [snowth.render :as render]
    [snowth.satellites :as sat])
@@ -27,31 +27,13 @@
   they reflect your time and location when the page was loaded. However, you
   can manually reset the time with the button below.")
 
-(defonce d3-state
-  (let [a (r/atom {:now (js/Date.)})
-        location-ch (chan)
-        defaults #js {:latitude default-lat :longitude default-long}]
-    (if-let [gl (.-geolocation js/navigator)]
-      (.getCurrentPosition gl
-                           #(put! location-ch (.-coords %))
-                           #(put! location-ch defaults)
-                           #js {:timeout 10000})
-      (put! location-ch defaults))
-    (go
-      (<! (timeout 5000))
-      (swap! a (change-location (<! location-ch)))
-      (close! location-ch))
-    a))
+(defonce state (r/atom {:now (js/Date.)
+                        :lat default-lat
+                        :long default-long}))
 
 (defcard
-  (fn [state _]
-    (sab/html
-     [:div
-      [:button
-       {:onClick (fn [] (swap! state #(assoc % :now (js/Date.))))}
-       "Reset time"]
-      [:div [:strong "Analemmas generated at: "] (str (:now @state))]]))
-  d3-state)
+  (place-and-date-card)
+  state)
 
 (defcard
   "## D3 examples
@@ -188,7 +170,7 @@
 
 (defcard chroma-d3-day
   (dc/reagent d3-day-component)
-  d3-state)
+  state)
 
 (defn make-year-calc
   [global-state local-state]
@@ -298,7 +280,7 @@
 
 (defcard chroma-d3-year
   (dc/reagent d3-year-component)
-  d3-state)
+  state)
 
 (defcard
   "## Color gradients
@@ -362,4 +344,4 @@
 
 (defcard chroma
   (analemma-card sat/earth chroma-dots)
-  d3-state)
+  state)

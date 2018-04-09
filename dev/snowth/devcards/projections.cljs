@@ -1,7 +1,7 @@
 (ns snowth.devcards.projections
   (:require
    [devcards.core :as dc :refer-macros [defcard]]
-   [snowth.devcards.common :refer [analemma-card state]]
+   [snowth.devcards.common :refer [analemma-card place-card state]]
    [snowth.projections :as proj]
    [snowth.render :as render :refer [racetrack]]
    [snowth.satellites :as sat]))
@@ -14,6 +14,10 @@
   available projections are orthographic and stereographic. The red dot
   indicates the position of the sun in the analemma for your current time
   and location, and the display auto-updates every 30 seconds.")
+
+(defcard
+  (place-card)
+  state)
 
 (defcard dots-orthographic
   (analemma-card sat/earth)
