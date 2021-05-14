@@ -1,0 +1,8 @@
+{:main snowth.devcards.core
+ :devcards true
+ :output-to "docs/gh-pages.js"
+ :output-dir "docs/out"
+ :source-map "docs/gh-pages.js.map"
+ :source-map-timestamp true
+ :asset-path "out"
+ :optimizations :advanced}

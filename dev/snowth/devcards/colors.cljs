@@ -3,7 +3,7 @@
    [cljsjs.chroma :as chroma]
    [cljsjs.d3 :as d3]
    [clojure.core.async :refer [chan <! put! close! timeout]]
-   [clojure.spec.test :as s]
+   [clojure.spec.test.alpha :as s]
    [clojure.string :as str]
    [devcards.core :as dc :refer-macros [defcard]]
    [reagent.core :as r]

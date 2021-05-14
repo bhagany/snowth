@@ -1,0 +1,9 @@
+^{:watch-dirs ["src" "dev"]}
+{:main snowth.devcards.core
+ :devcards true
+ :output-to "resources/public/cljs/snowth.js"
+ :output-dir "resources/public/cljs/out"
+ :source-map-timestamp true
+ :asset-path "cljs/out"
+ :optimizations :none
+ :parallel-build true}

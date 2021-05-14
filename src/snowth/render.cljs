@@ -1,6 +1,6 @@
 (ns snowth.render
   (:require
-   [clojure.spec :as s]
+   [clojure.spec.alpha :as s]
    [clojure.string :as str]
    [snowth.astro :as astro]
    [snowth.projections :as proj]))

@@ -1,6 +1,6 @@
 (ns snowth.common
   (:require
-   [clojure.spec :as s]))
+   [clojure.spec.alpha :as s]))
 
 (def pi (.-PI js/Math))
 

@@ -1,6 +1,5 @@
 (ns snowth.devcards.core
   (:require
-   [clojure.spec.test :as test]
    [devcards.core :as dc]
    [snowth.devcards.colors]
    [snowth.devcards.generated]

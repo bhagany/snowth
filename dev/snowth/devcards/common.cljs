@@ -49,7 +49,7 @@
       {:onClick (fn []
                   (.getCurrentPosition gl
                                        #(swap! state (change-location (.-coords %)))
-                                       #(.log js/console "location get failed")
+                                       #(.log js/console "location get failed " %)
                                        #js {:timeout 10000}))}
       "Use your location"])])
 

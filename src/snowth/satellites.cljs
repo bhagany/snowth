@@ -1,6 +1,6 @@
 (ns snowth.satellites
   (:require
-   [clojure.spec :as s]
+   [clojure.spec.alpha :as s]
    [clojure.test.check.generators :as gen]
    [snowth.common :as c :refer [pi]]))
 

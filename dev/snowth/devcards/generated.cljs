@@ -1,6 +1,8 @@
 (ns snowth.devcards.generated
   (:require
-   [clojure.spec :as s]
+   [clojure.spec.alpha :as s]
+   [clojure.test.check]
+   [clojure.test.check.properties]
    [devcards.core :as dc :refer-macros [defcard]]
    [sablono.core :as sab :include-macros true]
    [snowth.astro :as astro]

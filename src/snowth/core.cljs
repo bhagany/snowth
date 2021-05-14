@@ -1,6 +1,6 @@
 (ns snowth.core
   (:require
-   [clojure.spec :as s]
+   [clojure.spec.alpha :as s]
    [snowth.astro :as astro]
    [snowth.common :as c :refer [pi]]
    [snowth.projections :as proj]

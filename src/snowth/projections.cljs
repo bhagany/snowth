@@ -1,6 +1,6 @@
 (ns snowth.projections
   (:require
-   [clojure.spec :as s]
+   [clojure.spec.alpha :as s]
    [snowth.astro :as astro]
    [snowth.common :as c :refer [sin cos sqrt]]))
 

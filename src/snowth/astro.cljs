@@ -4,7 +4,7 @@
    [snowth.common :as c :refer [pi sin cos atan2 sqrt abs]]
    [snowth.satellites :as sat]
    [clojure.pprint :refer [pprint]]
-   [clojure.spec :as s]
+   [clojure.spec.alpha :as s]
    [clojure.string :as str]
    [clojure.test.check.generators :as gen]))
 
